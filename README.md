@@ -35,7 +35,7 @@ Supports stock trading, options, portfolio management, watchlists, and real-time
 - **Asset Search**
   - Query details for stocks and other Alpaca-supported assets
 
-## 0. Prerequisites
+### Prerequisites
 
 - Python (version requirements can be found at: https://modelcontextprotocol.io/quickstart/server)
 - GitHub account
