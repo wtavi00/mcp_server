@@ -27,3 +27,49 @@ from alpaca.data.requests import (
     StockTradesRequest,
     OptionChainRequest,
     CorporateActionsRequest
+)
+from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
+from alpaca.trading.client import TradingClient
+from alpaca.trading.enums import (
+    AssetStatus,
+    ContractType,
+    OrderClass,
+    OrderSide,
+    OrderType,
+    PositionIntent,
+    QueryOrderStatus,
+    TimeInForce,
+)
+from alpaca.trading.models import Order
+from alpaca.trading.requests import (
+    ClosePositionRequest,
+    CreateWatchlistRequest,
+    GetAssetsRequest,
+    GetCalendarRequest,
+    GetOptionContractsRequest,
+    GetOrdersRequest,
+    LimitOrderRequest,
+    MarketOrderRequest,
+    OptionLegRequest,
+    StopLimitOrderRequest,
+    StopOrderRequest,
+    TrailingStopOrderRequest,
+    UpdateWatchlistRequest,
+)
+
+from mcp.server.fastmcp import FastMCP
+
+# Configure Python path for local imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+github_core_path = os.path.join(current_dir, '.github', 'core')
+if github_core_path not in sys.path:
+    sys.path.insert(0, github_core_path)
+# Import the UserAgentMixin
+from user_agent_mixin import UserAgentMixin
+# Define new classes using the mixin
+class TradingClientSigned(UserAgentMixin, TradingClient): pass
+class StockHistoricalDataClientSigned(UserAgentMixin, StockHistoricalDataClient): pass
+class OptionHistoricalDataClientSigned(UserAgentMixin, OptionHistoricalDataClient): pass
+class CorporateActionsClientSigned(UserAgentMixin, CorporateActionsClient): pass
+
+
