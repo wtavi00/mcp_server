@@ -41,3 +41,26 @@ Supports stock trading, options, portfolio management, watchlists, and real-time
 - GitHub account
 - Alpaca API keys (with paper or live trading access)
 - Claude for Desktop or another compatible MCP client
+
+
+2. Create and activate a virtual environment and Install the required packages:
+
+    **Option A: Using pip (traditional)**
+
+    ```bash
+    python3 -m venv myvenv
+    source myvenv/bin/activate  # On Windows: myvenv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+
+    **Option B: Using uv (modern, faster)**
+
+    To use uv, you'll first need to install it. See the [official uv installation guide](https://docs.astral.sh/uv/getting-started/installation/) for detailed installation instructions for your platform.
+    ```bash
+    uv venv myvenv
+    source myvenv/bin/activate # On Windows: myvenv\Scripts\activate
+    uv pip install -r requirements.txt
+    ```
+    **Note:** The virtual environment will use the Python version that was used to create it. If you run the command with Python 3.10 or newer, your virtual environment will also use Python 3.10+. If you want to confirm the version, you can run `python3 --version` after activating the virtual environment. 
+
+
