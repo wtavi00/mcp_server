@@ -72,4 +72,33 @@ class StockHistoricalDataClientSigned(UserAgentMixin, StockHistoricalDataClient)
 class OptionHistoricalDataClientSigned(UserAgentMixin, OptionHistoricalDataClient): pass
 class CorporateActionsClientSigned(UserAgentMixin, CorporateActionsClient): pass
 
+def detect_pycharm_environment():
+    """
+    Detect if we're running in PyCharm using environment variable.
+    Set MCP_CLIENT=pycharm in your PyCharm MCP configuration.
+    """
+    mcp_client = os.getenv("MCP_CLIENT", "").lower()
+    return mcp_client == "pycharm"
+
+def parse_arguments():
+    """Parse command line arguments for transport configuration."""
+    parser = argparse.ArgumentParser(description="Alpaca MCP Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "http", "sse"],
+        default="stdio",
+        help="Transport method to use (default: stdio). Note: WebSocket not supported, use HTTP for remote connections"
+    )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind the server to for HTTP/SSE transport (default: 127.0.0.1)"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind the server to for HTTP/SSE transport (default: 8000)"
+    )
+    return parser.parse_args()
 
