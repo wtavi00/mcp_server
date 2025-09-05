@@ -126,4 +126,6 @@ class DefaultArgs:
     def __init__(self):
         self.transport = "stdio"
 
+args = DefaultArgs()
+
 
