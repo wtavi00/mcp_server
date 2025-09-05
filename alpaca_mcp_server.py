@@ -102,3 +102,28 @@ def parse_arguments():
     )
     return parser.parse_args()
 
+def setup_transport_config(args):
+    """Setup transport configuration based on command line arguments."""
+    if args.transport == "http":
+        return {
+            "transport": "http",
+            "host": args.host,
+            "port": args.port
+        }
+    elif args.transport == "sse":
+        print(f"Warning: SSE transport is deprecated. Consider using HTTP transport instead.")
+        return {
+            "transport": "sse",
+            "host": args.host,
+            "port": args.port
+        }
+    else:
+        return {
+            "transport": "stdio"
+        }
+
+class DefaultArgs:
+    def __init__(self):
+        self.transport = "stdio"
+
+
