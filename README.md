@@ -63,4 +63,24 @@ Supports stock trading, options, portfolio management, watchlists, and real-time
     ```
     **Note:** The virtual environment will use the Python version that was used to create it. If you run the command with Python 3.10 or newer, your virtual environment will also use Python 3.10+. If you want to confirm the version, you can run `python3 --version` after activating the virtual environment. 
 
+## Project Structure
+
+After cloning and activating the virtual environment, your directory structure should look like this:
+```
+mcp_server/                 ← This is the workspace folder (= project root)
+├── alpaca_mcp_server.py    ← Script is directly in workspace root
+├── .github/                ← VS Code settings (for VS Code users)
+│ ├── core/                 ← Core utility modules
+│ └── workflows/            ← GitHub Actions workflows
+├── .vscode/                ← VS Code settings (for VS Code users)
+│   └── mcp.json
+├── venv/                   ← Virtual environment folder
+│   └── bin/python
+├── .env.example            ← Environment template (use this to create `.env` file)
+├── .gitignore              
+├── Dockerfile              ← Docker configuration (for Docker use)
+├── .dockerignore           ← Docker ignore (for Docker use)
+├── requirements.txt           
+└── README.md
+```
 
