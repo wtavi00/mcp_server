@@ -128,4 +128,21 @@ class DefaultArgs:
 
 args = DefaultArgs()
 
+is_pycharm = detect_pycharm_environment()
+log_level = "ERROR" if is_pycharm else "INFO"
+if not is_pycharm and __name__ == "__main__":
+    print(f"MCP Server starting with transport={args.transport}, log_level={log_level} (PyCharm detected: {is_pycharm})")
 
+mcp = FastMCP("alpaca-trading", log_level=log_level)
+
+load_dotenv()
+TRADE_API_KEY = os.getenv("ALPACA_API_KEY")
+TRADE_API_SECRET = os.getenv("ALPACA_SECRET_KEY")
+ALPACA_PAPER_TRADE = os.getenv("ALPACA_PAPER_TRADE", "True")
+TRADE_API_URL = os.getenv("TRADE_API_URL")
+TRDE_API_WSS = os.getenv("TRDE_API_WSS")
+DATA_API_URL = os.getenv("DATA_API_URL")
+STREAM_DATA_WSS = os.getenv("STREAM_DATA_WSS")
+
+if not TRADE_API_KEY or not TRADE_API_SECRET:
+    raise ValueError("Alpaca API credentials not found in environment variables.")
