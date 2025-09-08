@@ -157,4 +157,44 @@ option_historical_data_client = OptionHistoricalDataClientSigned(api_key=TRADE_A
 
 corporate_actions_client = CorporateActionsClientSigned(api_key=TRADE_API_KEY, secret_key=TRADE_API_SECRET)
 
+# ==============================#
+#   Account Information Tools   #
+# ==============================#
 
+@mcp.tool()
+async def get_account_info() -> str:
+    """
+    Retrieves and formats the current account information including balances and status.
+    
+    Returns:
+        str: Formatted string containing account details including:
+            - Account ID
+            - Status
+            - Currency
+            - Buying Power
+            - Cash Balance
+            - Portfolio Value
+            - Equity
+            - Market Values
+            - Pattern Day Trader Status
+            - Day Trades Remaining
+    """
+    account = trade_client.get_account()
+    
+    info = f"""
+            Account Information:
+            -------------------
+            Account ID: {account.id}
+            Status: {account.status}
+            Currency: {account.currency}
+            Buying Power: ${float(account.buying_power):.2f}
+            Cash: ${float(account.cash):.2f}
+            Portfolio Value: ${float(account.portfolio_value):.2f}
+            Equity: ${float(account.equity):.2f}
+            Long Market Value: ${float(account.long_market_value):.2f}
+            Short Market Value: ${float(account.short_market_value):.2f}
+            Pattern Day Trader: {'Yes' if account.pattern_day_trader else 'No'}
+            Day Trades Remaining: {account.daytrade_count if hasattr(account, 'daytrade_count') else 'Unknown'}
+            """
+    return info
+    
