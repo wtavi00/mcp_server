@@ -197,4 +197,21 @@ async def get_account_info() -> str:
             Day Trades Remaining: {account.daytrade_count if hasattr(account, 'daytrade_count') else 'Unknown'}
             """
     return info
+
+@mcp.tool()
+async def get_positions() -> str:
+    """
+    Retrieves and formats all current positions in the portfolio.
     
+    Returns:
+        str: Formatted string containing details of all open positions including:
+            - Symbol
+            - Quantity
+            - Market Value
+            - Average Entry Price
+            - Current Price
+            - Unrealized P/L
+    """
+    positions = trade_client.get_all_positions()
+
+
