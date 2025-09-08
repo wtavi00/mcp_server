@@ -83,4 +83,22 @@ mcp_server/                 ← This is the workspace folder (= project root)
 ├── requirements.txt           
 └── README.md
 ```
+### Create and edit a .env file for your credentials in the project directory
 
+1. Copy the example environment file in the project root by running this command:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Replace the credentials (e.g. API keys) in the `.env` file:
+
+   ```
+   ALPACA_API_KEY = "your_alpaca_api_key_for_paper_account"
+   ALPACA_SECRET_KEY = "your_alpaca_secret_key_for_paper_account"
+   ALPACA_PAPER_TRADE = True
+   TRADE_API_URL = None
+   TRDE_API_WSS = None
+   DATA_API_URL = None
+   STREAM_DATA_WSS = None
+   ```
+   
