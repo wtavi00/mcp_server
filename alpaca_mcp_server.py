@@ -214,4 +214,19 @@ async def get_positions() -> str:
     """
     positions = trade_client.get_all_positions()
 
+    if not positions:
+        return "No open positions found."
+    
+    result = "Current Positions:\n-------------------\n"
+    for position in positions:
+        result += f"""
+                    Symbol: {position.symbol}
+                    Quantity: {position.qty} shares
+                    Market Value: ${float(position.market_value):.2f}
+                    Average Entry Price: ${float(position.avg_entry_price):.2f}
+                    Current Price: ${float(position.current_price):.2f}
+                    Unrealized P/L: ${float(position.unrealized_pl):.2f} ({float(position.unrealized_plpc) * 100:.2f}%)
+                    -------------------
+                    """
+    return result
 
