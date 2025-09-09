@@ -230,3 +230,17 @@ async def get_positions() -> str:
                     """
     return result
 
+@mcp.tool()
+async def get_open_position(symbol: str) -> str:
+    """
+    Retrieves and formats details for a specific open position.
+    
+    Args:
+        symbol (str): The symbol name of the asset to get position for (e.g., 'AAPL', 'MSFT')
+    
+    Returns:
+        str: Formatted string containing the position details or an error message
+    """
+    try:
+        position = trade_client.get_open_position(symbol)
+
