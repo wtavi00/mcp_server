@@ -102,3 +102,13 @@ mcp_server/                 ← This is the workspace folder (= project root)
    STREAM_DATA_WSS = None
    ```
    
+### Start the MCP Server
+
+Open a terminal in the project root directory and run the following command:
+
+**For local usage (default - stdio transport):**
+```bash
+python alpaca_mcp_server.py
+```
+
+
