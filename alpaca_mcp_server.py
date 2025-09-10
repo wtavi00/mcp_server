@@ -244,3 +244,21 @@ async def get_open_position(symbol: str) -> str:
     try:
         position = trade_client.get_open_position(symbol)
 
+        is_option = len(symbol) > 6 and any(c in symbol for c in ['C', 'P'])
+        
+        # Format quantity based on asset type
+        quantity_text = f"{position.qty} contracts" if is_option else f"{position.qty}"
+
+        return f"""
+                Position Details for {symbol}:
+                ---------------------------
+                Quantity: {quantity_text}
+                Market Value: ${float(position.market_value):.2f}
+                Average Entry Price: ${float(position.avg_entry_price):.2f}
+                Current Price: ${float(position.current_price):.2f}
+                Unrealized P/L: ${float(position.unrealized_pl):.2f}
+                """ 
+    except Exception as e:
+        return f"Error fetching position: {str(e)}"
+
+
