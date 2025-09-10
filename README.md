@@ -111,4 +111,8 @@ Open a terminal in the project root directory and run the following command:
 python alpaca_mcp_server.py
 ```
 
+**For remote usage (HTTP transport):**
+```bash
+python alpaca_mcp_server.py --transport http
+```
 
