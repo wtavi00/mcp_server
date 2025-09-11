@@ -261,4 +261,25 @@ async def get_open_position(symbol: str) -> str:
     except Exception as e:
         return f"Error fetching position: {str(e)}"
 
+# ============================================================================
+# Market Data Tools
+# ============================================================================
+
+@mcp.tool()
+async def get_stock_quote(symbol: str) -> str:
+    """
+    Retrieves and formats the latest quote for a stock.
+    
+    Args:
+        symbol (str): Stock ticker symbol (e.g., AAPL, MSFT)
+    
+    Returns:
+        str: Formatted string containing:
+            - Ask Price
+            - Bid Price
+            - Ask Size
+            - Bid Size
+            - Timestamp
+    """
+    
 
