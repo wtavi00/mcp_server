@@ -116,3 +116,11 @@ python alpaca_mcp_server.py
 python alpaca_mcp_server.py --transport http
 ```
 
+**Available transport options:**
+- `--transport stdio` (default): Standard input/output for local client connections
+- `--transport http`: HTTP transport for remote client connections (default: 127.0.0.1:8000)
+- `--transport sse`: Server-Sent Events transport for remote connections (deprecated)
+- `--host HOST`: Host to bind the server to for HTTP/SSE transport (default: 127.0.0.1)
+- `--port PORT`: Port to bind the server to for HTTP/SSE transport (default: 8000)
+
+
