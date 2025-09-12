@@ -282,4 +282,23 @@ async def get_stock_quote(symbol: str) -> str:
             - Timestamp
     """
     
+    try:
+        request_params = StockLatestQuoteRequest(symbol_or_symbols=symbol)
+        quotes = stock_historical_data_client.get_stock_latest_quote(request_params)
+        
+        if symbol in quotes:
+            quote = quotes[symbol]
+            return f"""
+                    Latest Quote for {symbol}:
+                    ------------------------
+                    Ask Price: ${quote.ask_price:.2f}
+                    Bid Price: ${quote.bid_price:.2f}
+                    Ask Size: {quote.ask_size}
+                    Bid Size: {quote.bid_size}
+                    Timestamp: {quote.timestamp}
+                    """ 
+        else:
+            return f"No quote data found for {symbol}."
+    except Exception as e:
+        return f"Error fetching quote for {symbol}: {str(e)}" 
 
