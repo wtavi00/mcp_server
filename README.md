@@ -123,4 +123,18 @@ python alpaca_mcp_server.py --transport http
 - `--host HOST`: Host to bind the server to for HTTP/SSE transport (default: 127.0.0.1)
 - `--port PORT`: Port to bind the server to for HTTP/SSE transport (default: 8000)
 
+**Note:** For more information about MCP transport methods, see the [official MCP transport documentation](https://modelcontextprotocol.io/docs/concepts/transports).
+
+## Claude Desktop Usage
+
+To use Alpaca MCP Server with Claude Desktop, please follow the steps below. The official Claude Desktop setup document is available here: https://modelcontextprotocol.io/quickstart/user
+
+### Configure Claude Desktop
+
+1. Open Claude Desktop
+2. Navigate to: `Settings → Developer → Edit Config`
+3. Update your `claude_desktop_config.json`:
+
+  **Note:**\
+    Replace <project_root> with the path to your cloned alpaca-mcp-server directory. This should point to the Python executable inside the virtual environment you created with `python3 -m venv venv` in the terminal.
 
