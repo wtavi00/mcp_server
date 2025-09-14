@@ -302,3 +302,54 @@ async def get_stock_quote(symbol: str) -> str:
     except Exception as e:
         return f"Error fetching quote for {symbol}: {str(e)}" 
 
+@mcp.tool()
+async def get_stock_bars(
+    symbol: str, 
+    days: int = 5, 
+    timeframe: str = "1Day",
+    limit: Optional[int] = None,
+    start: Optional[str] = None,
+    end: Optional[str] = None
+) -> str:
+    """
+    Retrieves and formats historical price bars for a stock with configurable timeframe and time range.
+    
+    Args:
+        symbol (str): Stock ticker symbol (e.g., AAPL, MSFT)
+        days (int): Number of days to look back (default: 5, ignored if start/end provided)
+        timeframe (str): Bar timeframe - supports flexible Alpaca formats:
+            - Minutes: "1Min", "2Min", "3Min", "4Min", "5Min", "15Min", "30Min", etc.
+            - Hours: "1Hour", "2Hour", "3Hour", "4Hour", "6Hour", etc.
+            - Days: "1Day", "2Day", "3Day", etc.
+            - Weeks: "1Week", "2Week", etc.
+            - Months: "1Month", "2Month", etc.
+            (default: "1Day")
+        limit (Optional[int]): Maximum number of bars to return (optional)
+        start (Optional[str]): Start time in ISO format (e.g., "2023-01-01T09:30:00" or "2023-01-01")
+        end (Optional[str]): End time in ISO format (e.g., "2023-01-01T16:00:00" or "2023-01-01")
+    
+    Returns:
+        str: Formatted string containing historical price data with timestamps, OHLCV data
+    """
+    try:
+        # Parse timeframe string to TimeFrame object
+        timeframe_obj = parse_timeframe_with_enums(timeframe)
+        if timeframe_obj is None:
+            return f"Error: Invalid timeframe '{timeframe}'. Supported formats: 1Min, 2Min, 4Min, 5Min, 15Min, 30Min, 1Hour, 2Hour, 4Hour, 1Day, 1Week, 1Month, etc."
+        
+        # Parse start/end times or calculate from days
+        start_time = None
+        end_time = None
+        
+        if start:
+            try:
+                start_time = datetime.fromisoformat(start.replace('Z', '+00:00'))
+            except ValueError:
+                return f"Error: Invalid start time format '{start}'. Use ISO format like '2023-01-01T09:30:00' or '2023-01-01'"
+                
+        if end:
+            try:
+                end_time = datetime.fromisoformat(end.replace('Z', '+00:00'))
+            except ValueError:
+                return f"Error: Invalid end time format '{end}'. Use ISO format like '2023-01-01T16:00:00' or '2023-01-01'"
+
