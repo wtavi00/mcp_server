@@ -138,3 +138,21 @@ To use Alpaca MCP Server with Claude Desktop, please follow the steps below. The
   **Note:**\
     Replace <project_root> with the path to your cloned alpaca-mcp-server directory. This should point to the Python executable inside the virtual environment you created with `python3 -m venv venv` in the terminal.
 
+**For local usage (stdio transport - recommended):**
+```json
+{
+  "mcpServers": {
+    "alpaca": {
+      "command": "<project_root>/venv/bin/python",
+      "args": [
+        "/path/to/alpaca-mcp-server/alpaca_mcp_server.py"
+      ],
+      "env": {
+        "ALPACA_API_KEY": "your_alpaca_api_key_for_paper_account",
+        "ALPACA_SECRET_KEY": "your_alpaca_secret_key_for_paper_account"
+      }
+    }
+  }
+}
+```
+
