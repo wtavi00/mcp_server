@@ -378,3 +378,23 @@ async def get_stock_bars(
         
         bars = stock_historical_data_client.get_stock_bars(request_params)
 
+        if bars[symbol]:
+            time_range = f"{start_time.strftime('%Y-%m-%d %H:%M')} to {end_time.strftime('%Y-%m-%d %H:%M')}"
+            result = f"Historical Data for {symbol} ({timeframe} bars, {time_range}):\n"
+            result += "---------------------------------------------------\n"
+            
+            for bar in bars[symbol]:
+                # Format timestamp based on timeframe unit
+                if timeframe_obj.unit_value in [TimeFrameUnit.Minute, TimeFrameUnit.Hour]:
+                    time_str = bar.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    time_str = bar.timestamp.date()
+                
+                result += f"Time: {time_str}, Open: ${bar.open:.2f}, High: ${bar.high:.2f}, Low: ${bar.low:.2f}, Close: ${bar.close:.2f}, Volume: {bar.volume}\n"
+            
+            return result
+        else:
+            return f"No historical data found for {symbol} with {timeframe} timeframe in the specified time range."
+    except Exception as e:
+        return f"Error fetching historical data for {symbol}: {str(e)}"
+
