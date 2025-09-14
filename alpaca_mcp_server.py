@@ -353,3 +353,28 @@ async def get_stock_bars(
             except ValueError:
                 return f"Error: Invalid end time format '{end}'. Use ISO format like '2023-01-01T16:00:00' or '2023-01-01'"
 
+        if not start_time:
+            if limit and timeframe_obj.unit_value in [TimeFrameUnit.Minute, TimeFrameUnit.Hour]:
+                # Calculate based on limit and timeframe for intraday data
+                if timeframe_obj.unit_value == TimeFrameUnit.Minute:
+                    minutes_back = limit * timeframe_obj.amount
+                    start_time = datetime.now() - timedelta(minutes=minutes_back)
+                elif timeframe_obj.unit_value == TimeFrameUnit.Hour:
+                    hours_back = limit * timeframe_obj.amount
+                    start_time = datetime.now() - timedelta(hours=hours_back)
+            else:
+                # Fall back to days parameter for daily+ timeframes
+                start_time = datetime.now() - timedelta(days=days)
+        if not end_time:
+            end_time = datetime.now()
+        
+        request_params = StockBarsRequest(
+            symbol_or_symbols=symbol,
+            timeframe=timeframe_obj,
+            start=start_time,
+            end=end_time,
+            limit=limit
+        )
+        
+        bars = stock_historical_data_client.get_stock_bars(request_params)
+
