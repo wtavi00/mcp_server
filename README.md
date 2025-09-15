@@ -156,3 +156,20 @@ To use Alpaca MCP Server with Claude Desktop, please follow the steps below. The
 }
 ```
 
+**For remote usage (HTTP transport):**
+```json
+{
+  "mcpServers": {
+    "alpaca": {
+      "transport": "http",
+      "url": "http://your-server-ip:8000/mcp",
+      "env": {
+        "ALPACA_API_KEY": "your_alpaca_api_key_for_paper_account",
+        "ALPACA_SECRET_KEY": "your_alpaca_secret_key_for_paper_account"
+      }
+    }
+  }
+}
+```
+
+
