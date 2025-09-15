@@ -398,3 +398,44 @@ async def get_stock_bars(
     except Exception as e:
         return f"Error fetching historical data for {symbol}: {str(e)}"
 
+@mcp.tool()
+async def get_stock_trades(
+    symbol: str,
+    days: int = 5,
+    limit: Optional[int] = None,
+    sort: Optional[Sort] = Sort.ASC,
+    feed: Optional[DataFeed] = None,
+    currency: Optional[SupportedCurrencies] = None,
+    asof: Optional[str] = None
+) -> str:
+    """
+    Retrieves and formats historical trades for a stock.
+    
+    Args:
+        symbol (str): Stock ticker symbol (e.g., 'AAPL', 'MSFT')
+        days (int): Number of days to look back (default: 5)
+        limit (Optional[int]): Upper limit of number of data points to return
+        sort (Optional[Sort]): Chronological order of response (ASC or DESC)
+        feed (Optional[DataFeed]): The stock data feed to retrieve from
+        currency (Optional[SupportedCurrencies]): Currency for prices (default: USD)
+        asof (Optional[str]): The asof date in YYYY-MM-DD format
+    
+    Returns:
+        str: Formatted string containing trade history or an error message
+    """
+    try:
+        # Calculate start time based on days
+        start_time = datetime.now() - timedelta(days=days)
+        
+        # Create the request object with all available parameters
+        request_params = StockTradesRequest(
+            symbol_or_symbols=symbol,
+            start=start_time,
+            end=datetime.now(),
+            limit=limit,
+            sort=sort,
+            feed=feed,
+            currency=currency,
+            asof=asof
+        )
+        
