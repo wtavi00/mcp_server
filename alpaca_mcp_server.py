@@ -438,4 +438,27 @@ async def get_stock_trades(
             currency=currency,
             asof=asof
         )
+                
+        trades = stock_historical_data_client.get_stock_trades(request_params)
         
+        if symbol in trades:
+            result = f"Historical Trades for {symbol} (Last {days} days):\n"
+            result += "---------------------------------------------------\n"
+            
+            for trade in trades[symbol]:
+                result += f"""
+                    Time: {trade.timestamp}
+                    Price: ${float(trade.price):.6f}
+                    Size: {trade.size}
+                    Exchange: {trade.exchange}
+                    ID: {trade.id}
+                    Conditions: {trade.conditions}
+                    -------------------
+                    """
+            return result
+        else:
+            return f"No trade data found for {symbol} in the last {days} days."
+    except Exception as e:
+        return f"Error fetching trades: {str(e)}"
+
+
