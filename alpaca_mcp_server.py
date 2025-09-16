@@ -461,4 +461,27 @@ async def get_stock_trades(
     except Exception as e:
         return f"Error fetching trades: {str(e)}"
 
-
+@mcp.tool()
+async def get_stock_latest_trade(
+    symbol: str,
+    feed: Optional[DataFeed] = None,
+    currency: Optional[SupportedCurrencies] = None
+) -> str:
+    """Get the latest trade for a stock.
+    
+    Args:
+        symbol: Stock ticker symbol (e.g., 'AAPL', 'MSFT')
+        feed: The stock data feed to retrieve from (optional)
+        currency: The currency for prices (optional, defaults to USD)
+    
+    Returns:
+        A formatted string containing the latest trade details or an error message
+    """
+    try:
+        # Create the request object with all available parameters
+        request_params = StockLatestTradeRequest(
+            symbol_or_symbols=symbol,
+            feed=feed,
+            currency=currency
+        )
+        
