@@ -485,3 +485,22 @@ async def get_stock_latest_trade(
             currency=currency
         )
         
+        latest_trades = stock_historical_data_client.get_stock_latest_trade(request_params)
+        
+        if symbol in latest_trades:
+            trade = latest_trades[symbol]
+            return f"""
+                Latest Trade for {symbol}:
+                ---------------------------
+                Time: {trade.timestamp}
+                Price: ${float(trade.price):.6f}
+                Size: {trade.size}
+                Exchange: {trade.exchange}
+                ID: {trade.id}
+                Conditions: {trade.conditions}
+                """
+        else:
+            return f"No latest trade data found for {symbol}."
+    except Exception as e:
+        return f"Error fetching latest trade: {str(e)}"
+        
