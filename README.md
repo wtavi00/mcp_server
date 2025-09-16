@@ -178,3 +178,13 @@ To use Alpaca MCP Server with Claude Code, please follow the steps below.
 
 The `claude mcp add command` is part of [Claude Code](https://www.anthropic.com/claude-code). If you have the Claude MCP CLI tool installed (e.g. by `npm install -g @anthropic-ai/claude-code`), you can use this command to add the server to Claude Code:
 
+```bash
+claude mcp add alpaca \
+  /path/to/your/alpaca-mcp-server/venv/bin/python \
+  /path/to/your/alpaca-mcp-server/alpaca_mcp_server.py \
+  -e ALPACA_API_KEY=your_api_key \
+  -e ALPACA_SECRET_KEY=your_secret_key
+```
+
+**Note:** Replace the paths with your actual project directory paths. This command automatically adds the MCP server configuration to Claude Code without manual JSON editing.
+
