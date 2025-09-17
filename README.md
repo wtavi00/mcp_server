@@ -191,3 +191,13 @@ claude mcp add alpaca \
 The Claude MCP CLI tool needs to be installed separately. Check following the official pages for availability and installation instructions
 * [Learn how to set up MCP with Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp)
 * [Install, authenticate, and start using Claude Code on your development machine](https://docs.anthropic.com/en/docs/claude-code/setup)
+
+
+## Cursor Usage
+
+To use Alpaca MCP Server with Cursor, please follow the steps below. The official Cursor MCP setup document is available here: https://docs.cursor.com/context/mcp
+
+**Prerequisites**
+- Cursor IDE installed with Claude AI enabled
+- Python and virtual environment set up (follow Installation steps above)
+
