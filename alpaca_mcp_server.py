@@ -552,3 +552,16 @@ async def get_stock_latest_bar(
 # Market Data Tools - Stock Snapshot Data with Helper Functions
 # ============================================================================
 
+def _format_ohlcv_bar(bar, bar_type: str, include_time: bool = True) -> str:
+    """Helper function to format OHLCV bar data consistently."""
+    if not bar:
+        return ""
+    
+    time_format = '%Y-%m-%d %H:%M:%S %Z' if include_time else '%Y-%m-%d'
+    time_label = "Timestamp" if include_time else "Date"
+    
+    return f"""{bar_type}:
+  Open: ${bar.open:.2f}, High: ${bar.high:.2f}, Low: ${bar.low:.2f}, Close: ${bar.close:.2f}
+  Volume: {bar.volume:,}, {time_label}: {bar.timestamp.strftime(time_format)}
+
+    
