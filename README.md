@@ -188,3 +188,6 @@ claude mcp add alpaca \
 
 **Note:** Replace the paths with your actual project directory paths. This command automatically adds the MCP server configuration to Claude Code without manual JSON editing.
 
+The Claude MCP CLI tool needs to be installed separately. Check following the official pages for availability and installation instructions
+* [Learn how to set up MCP with Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp)
+* [Install, authenticate, and start using Claude Code on your development machine](https://docs.anthropic.com/en/docs/claude-code/setup)
