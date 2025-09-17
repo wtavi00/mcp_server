@@ -548,3 +548,7 @@ async def get_stock_latest_bar(
     except Exception as e:
         return f"Error fetching latest bar: {str(e)}"
 
+# ============================================================================
+# Market Data Tools - Stock Snapshot Data with Helper Functions
+# ============================================================================
+
