@@ -504,3 +504,47 @@ async def get_stock_latest_trade(
     except Exception as e:
         return f"Error fetching latest trade: {str(e)}"
         
+@mcp.tool()
+async def get_stock_latest_bar(
+    symbol: str,
+    feed: Optional[DataFeed] = None,
+    currency: Optional[SupportedCurrencies] = None
+) -> str:
+    """Get the latest minute bar for a stock.
+    
+    Args:
+        symbol: Stock ticker symbol (e.g., 'AAPL', 'MSFT')
+        feed: The stock data feed to retrieve from (optional)
+        currency: The currency for prices (optional, defaults to USD)
+    
+    Returns:
+        A formatted string containing the latest bar details or an error message
+    """
+    try:
+        # Create the request object with all available parameters
+        request_params = StockLatestBarRequest(
+            symbol_or_symbols=symbol,
+            feed=feed,
+            currency=currency
+        )
+        
+        # Get the latest bar
+        latest_bars = stock_historical_data_client.get_stock_latest_bar(request_params)
+        
+        if symbol in latest_bars:
+            bar = latest_bars[symbol]
+            return f"""
+                Latest Minute Bar for {symbol}:
+                ---------------------------
+                Time: {bar.timestamp}
+                Open: ${float(bar.open):.2f}
+                High: ${float(bar.high):.2f}
+                Low: ${float(bar.low):.2f}
+                Close: ${float(bar.close):.2f}
+                Volume: {bar.volume}
+                """
+        else:
+            return f"No latest bar data found for {symbol}."
+    except Exception as e:
+        return f"Error fetching latest bar: {str(e)}"
+
