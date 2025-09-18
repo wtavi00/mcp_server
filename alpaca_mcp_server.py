@@ -575,3 +575,24 @@ def _format_quote_data(quote) -> str:
 
 """
 
+
+def _format_trade_data(trade) -> str:
+    """Helper function to format trade data consistently."""
+    if not trade:
+        return ""
+    
+    optional_fields = []
+    if hasattr(trade, 'exchange') and trade.exchange:
+        optional_fields.append(f"Exchange: {trade.exchange}")
+    if hasattr(trade, 'conditions') and trade.conditions:
+        optional_fields.append(f"Conditions: {trade.conditions}")
+    if hasattr(trade, 'id') and trade.id:
+        optional_fields.append(f"ID: {trade.id}")
+    
+    optional_str = f", {', '.join(optional_fields)}" if optional_fields else ""
+    
+    return f"""Latest Trade:
+  Price: ${trade.price:.2f}, Size: {trade.size}{optional_str}
+  Timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')}
+
+"""
