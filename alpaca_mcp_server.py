@@ -564,4 +564,14 @@ def _format_ohlcv_bar(bar, bar_type: str, include_time: bool = True) -> str:
   Open: ${bar.open:.2f}, High: ${bar.high:.2f}, Low: ${bar.low:.2f}, Close: ${bar.close:.2f}
   Volume: {bar.volume:,}, {time_label}: {bar.timestamp.strftime(time_format)}
 
+def _format_quote_data(quote) -> str:
+    """Helper function to format quote data consistently."""
+    if not quote:
+        return ""
     
+    return f"""Latest Quote:
+  Bid: ${quote.bid_price:.2f} x {quote.bid_size}, Ask: ${quote.ask_price:.2f} x {quote.ask_size}
+  Timestamp: {quote.timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')}
+
+"""
+
