@@ -201,3 +201,26 @@ To use Alpaca MCP Server with Cursor, please follow the steps below. The officia
 - Cursor IDE installed with Claude AI enabled
 - Python and virtual environment set up (follow Installation steps above)
 
+### Configure the MCP Server
+
+**Method 1: Using JSON Configuration**
+
+Create or edit `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "alpaca": {
+      "command": "/path/to/your/alpaca-mcp-server/venv/bin/python",
+      "args": [
+        "/path/to/your/alpaca-mcp-server/alpaca_mcp_server.py"
+      ],
+      "env": {
+        "ALPACA_API_KEY": "your_alpaca_api_key",
+        "ALPACA_SECRET_KEY": "your_alpaca_secret_key"
+      }
+    }
+  }
+}
+```
+
