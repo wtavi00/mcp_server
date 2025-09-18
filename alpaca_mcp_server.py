@@ -596,3 +596,28 @@ def _format_trade_data(trade) -> str:
   Timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')}
 
 """
+
+@mcp.tool()
+async def get_stock_snapshot(
+    symbol_or_symbols: Union[str, List[str]], 
+    feed: Optional[DataFeed] = None,
+    currency: Optional[SupportedCurrencies] = None
+) -> str:
+    """
+    Retrieves comprehensive snapshots of stock symbols including latest trade, quote, minute bar, daily bar, and previous daily bar.
+    
+    Args:
+        symbol_or_symbols: Single stock symbol or list of stock symbols (e.g., 'AAPL' or ['AAPL', 'MSFT'])
+        feed: The stock data feed to retrieve from (optional)
+        currency: The currency the data should be returned in (default: USD)
+    
+    Returns:
+        Formatted string with comprehensive snapshots including:
+        - latest_quote: Current bid/ask prices and sizes
+        - latest_trade: Most recent trade price, size, and exchange
+        - minute_bar: Latest minute OHLCV bar
+        - daily_bar: Current day's OHLCV bar  
+        - previous_daily_bar: Previous trading day's OHLCV bar
+    """
+
+    
