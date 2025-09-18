@@ -563,6 +563,7 @@ def _format_ohlcv_bar(bar, bar_type: str, include_time: bool = True) -> str:
     return f"""{bar_type}:
   Open: ${bar.open:.2f}, High: ${bar.high:.2f}, Low: ${bar.low:.2f}, Close: ${bar.close:.2f}
   Volume: {bar.volume:,}, {time_label}: {bar.timestamp.strftime(time_format)}
+  """
 
 def _format_quote_data(quote) -> str:
     """Helper function to format quote data consistently."""
