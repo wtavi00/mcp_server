@@ -224,3 +224,19 @@ Create or edit `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.
 }
 ```
 
+**Method 2: Using Cursor Settings UI**
+
+1. Open Cursor Settings → **Tools & Integrations** → **MCP Tools**
+2. Click **"+ New MCP Server"**
+3. Configure with the same details as the JSON method above
+
+**Note:** Replace the paths with your actual project directory paths and API credentials.
+
+## VS Code Usage
+
+To use Alpaca MCP Server with VS Code, please follow the steps below.
+
+VS Code supports MCP servers through GitHub Copilot's agent mode.
+The official VS Code setup document is available here: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
+
+
