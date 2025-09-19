@@ -239,4 +239,14 @@ To use Alpaca MCP Server with VS Code, please follow the steps below.
 VS Code supports MCP servers through GitHub Copilot's agent mode.
 The official VS Code setup document is available here: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
 
+**Prerequisites**
+- VS Code with GitHub Copilot extension installed and active subscription
+- Python and virtual environment set up (follow Installation steps above)
+- MCP support enabled in VS Code (see below)
+
+### 1. Enable MCP Support in VS Code
+
+1. Open VS Code Settings (Ctrl/Cmd + ,)
+2. Search for "chat.mcp.enabled" to check the box to enable MCP support
+3. Search for "github.copilot.chat.experimental.mcp" to check the box to use instruction files
 
