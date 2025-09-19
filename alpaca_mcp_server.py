@@ -620,5 +620,59 @@ async def get_stock_snapshot(
         - daily_bar: Current day's OHLCV bar  
         - previous_daily_bar: Previous trading day's OHLCV bar
     """
+    try:
+        # Create and execute request
+        request = StockSnapshotRequest(symbol_or_symbols=symbol_or_symbols, feed=feed, currency=currency)
+        snapshots = stock_historical_data_client.get_stock_snapshot(request)
+        
+        # Format response
+        symbols = [symbol_or_symbols] if isinstance(symbol_or_symbols, str) else symbol_or_symbols
+        results = ["Stock Snapshots:", "=" * 15, ""]
+        
+        for symbol in symbols:
+            snapshot = snapshots.get(symbol)
+            if not snapshot:
+                results.append(f"No data available for {symbol}\n")
+                continue
+            
+            # Build snapshot data using helper functions
+            snapshot_data = [
+                f"Symbol: {symbol}",
+                "-" * 15,
+                _format_quote_data(snapshot.latest_quote),
+                _format_trade_data(snapshot.latest_trade),
+                _format_ohlcv_bar(snapshot.minute_bar, "Latest Minute Bar", True),
+                _format_ohlcv_bar(snapshot.daily_bar, "Latest Daily Bar", False),
+                _format_ohlcv_bar(snapshot.previous_daily_bar, "Previous Daily Bar", False),
+            ]
+            
+            results.extend(filter(None, snapshot_data))  # Filter out empty strings
+        
+        return "\n".join(results)
+        
+    except APIError as api_error:
+        error_message = str(api_error)
+        # Handle specific data feed subscription errors
+        if "subscription" in error_message.lower() and ("sip" in error_message.lower() or "premium" in error_message.lower()):
+            return f"""
+                    Error: Premium data feed subscription required.
 
-    
+                    The requested data feed requires a premium subscription. Available data feeds:
+
+                    • IEX (Default): Investor's Exchange data feed - Free with basic account
+                    • SIP: Securities Information Processor feed - Requires premium subscription
+                    • DELAYED_SIP: SIP data with 15-minute delay - Requires premium subscription  
+                    • OTC: Over the counter feed - Requires premium subscription
+
+                    Most users can access comprehensive market data using the default IEX feed.
+                    To use premium feeds (SIP, DELAYED_SIP, OTC), please upgrade your subscription.
+
+                    Original error: {error_message}
+                    """
+        else:
+            return f"API Error retrieving stock snapshots: {error_message}"
+            
+    except Exception as e:
+        return f"Error retrieving stock snapshots: {str(e)}"    
+
+
