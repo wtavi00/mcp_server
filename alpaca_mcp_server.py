@@ -261,9 +261,9 @@ async def get_open_position(symbol: str) -> str:
     except Exception as e:
         return f"Error fetching position: {str(e)}"
 
-# ============================================================================
-# Market Data Tools
-# ============================================================================
+# ===================#
+# Market Data Tools  #
+# ===================#
 
 @mcp.tool()
 async def get_stock_quote(symbol: str) -> str:
@@ -674,5 +674,74 @@ async def get_stock_snapshot(
             
     except Exception as e:
         return f"Error retrieving stock snapshots: {str(e)}"    
+
+
+# ============================================================================
+# Order Management Tools
+# ============================================================================
+
+@mcp.tool()
+async def get_orders(status: str = "all", limit: int = 10) -> str:
+    """
+    Retrieves and formats orders with the specified status.
+    
+    Args:
+        status (str): Order status to filter by (open, closed, all)
+        limit (int): Maximum number of orders to return (default: 10)
+    
+    Returns:
+        str: Formatted string containing order details including:
+            - Symbol
+            - ID
+            - Type
+            - Side
+            - Quantity
+            - Status
+            - Submission Time
+            - Fill Details (if applicable)
+    """
+    try:
+        # Convert status string to enum
+        if status.lower() == "open":
+            query_status = QueryOrderStatus.OPEN
+        elif status.lower() == "closed":
+            query_status = QueryOrderStatus.CLOSED
+        else:
+            query_status = QueryOrderStatus.ALL
+            
+        request_params = GetOrdersRequest(
+            status=query_status,
+            limit=limit
+        )
+        
+        orders = trade_client.get_orders(request_params)
+        
+        if not orders:
+            return f"No {status} orders found."
+        
+        result = f"{status.capitalize()} Orders (Last {len(orders)}):\n"
+        result += "-----------------------------------\n"
+        
+        for order in orders:
+            result += f"""
+                        Symbol: {order.symbol}
+                        ID: {order.id}
+                        Type: {order.type}
+                        Side: {order.side}
+                        Quantity: {order.qty}
+                        Status: {order.status}
+                        Submitted At: {order.submitted_at}
+                        """
+            if hasattr(order, 'filled_at') and order.filled_at:
+                result += f"Filled At: {order.filled_at}\n"
+                
+            if hasattr(order, 'filled_avg_price') and order.filled_avg_price:
+                result += f"Filled Price: ${float(order.filled_avg_price):.2f}\n"
+                
+            result += "-----------------------------------\n"
+            
+        return result
+    except Exception as e:
+        return f"Error fetching orders: {str(e)}"
 
 
