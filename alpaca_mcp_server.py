@@ -744,4 +744,17 @@ async def get_orders(status: str = "all", limit: int = 10) -> str:
     except Exception as e:
         return f"Error fetching orders: {str(e)}"
 
-
+@mcp.tool()
+async def place_stock_order(
+    symbol: str,
+    side: str,
+    quantity: float,
+    order_type: str = "market",
+    time_in_force: str = "day",
+    limit_price: float = None,
+    stop_price: float = None,
+    trail_price: float = None,
+    trail_percent: float = None,
+    extended_hours: bool = False,
+    client_order_id: str = None
+) -> str:
