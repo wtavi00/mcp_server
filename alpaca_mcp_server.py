@@ -157,9 +157,9 @@ option_historical_data_client = OptionHistoricalDataClientSigned(api_key=TRADE_A
 
 corporate_actions_client = CorporateActionsClientSigned(api_key=TRADE_API_KEY, secret_key=TRADE_API_SECRET)
 
-# ==============================#
-#   Account Information Tools   #
-# ==============================#
+# ============================================================================
+# Account Information Tools
+# ============================================================================
 
 @mcp.tool()
 async def get_account_info() -> str:
@@ -261,9 +261,9 @@ async def get_open_position(symbol: str) -> str:
     except Exception as e:
         return f"Error fetching position: {str(e)}"
 
-# ===================#
-# Market Data Tools  #
-# ===================#
+# ============================================================================
+# Market Data Tools
+# ============================================================================
 
 @mcp.tool()
 async def get_stock_quote(symbol: str) -> str:
