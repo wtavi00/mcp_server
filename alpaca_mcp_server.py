@@ -802,3 +802,15 @@ async def place_stock_order(
                 return f"Invalid time_in_force: {time_in_force}. Valid options are: DAY, GTC, OPG, CLS, IOC, FOK"
         else:
             return f"Invalid time_in_force type: {type(time_in_force)}. Must be string or TimeInForce enum."
+
+        order_type_upper = order_type.upper()
+        if order_type_upper == "MARKET":
+            order_data = MarketOrderRequest(
+                symbol=symbol,
+                qty=quantity,
+                side=order_side,
+                type=OrderType.MARKET,
+                time_in_force=tif_enum,
+                extended_hours=extended_hours,
+                client_order_id=client_order_id or f"order_{int(time.time())}"
+            )
