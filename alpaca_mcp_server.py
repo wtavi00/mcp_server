@@ -779,3 +779,11 @@ async def place_stock_order(
         str: Formatted string containing order details or error message.
     """
     try:
+        # Validate side
+        if side.lower() == "buy":
+            order_side = OrderSide.BUY
+        elif side.lower() == "sell":
+            order_side = OrderSide.SELL
+        else:
+            return f"Invalid order side: {side}. Must be 'buy' or 'sell'."
+            
