@@ -528,7 +528,6 @@ async def get_stock_latest_bar(
             currency=currency
         )
         
-        # Get the latest bar
         latest_bars = stock_historical_data_client.get_stock_latest_bar(request_params)
         
         if symbol in latest_bars:
@@ -621,11 +620,9 @@ async def get_stock_snapshot(
         - previous_daily_bar: Previous trading day's OHLCV bar
     """
     try:
-        # Create and execute request
         request = StockSnapshotRequest(symbol_or_symbols=symbol_or_symbols, feed=feed, currency=currency)
         snapshots = stock_historical_data_client.get_stock_snapshot(request)
-        
-        # Format response
+
         symbols = [symbol_or_symbols] if isinstance(symbol_or_symbols, str) else symbol_or_symbols
         results = ["Stock Snapshots:", "=" * 15, ""]
         
@@ -634,8 +631,7 @@ async def get_stock_snapshot(
             if not snapshot:
                 results.append(f"No data available for {symbol}\n")
                 continue
-            
-            # Build snapshot data using helper functions
+
             snapshot_data = [
                 f"Symbol: {symbol}",
                 "-" * 15,
@@ -701,7 +697,6 @@ async def get_orders(status: str = "all", limit: int = 10) -> str:
             - Fill Details (if applicable)
     """
     try:
-        # Convert status string to enum
         if status.lower() == "open":
             query_status = QueryOrderStatus.OPEN
         elif status.lower() == "closed":
@@ -779,7 +774,6 @@ async def place_stock_order(
         str: Formatted string containing order details or error message.
     """
     try:
-        # Validate side
         if side.lower() == "buy":
             order_side = OrderSide.BUY
         elif side.lower() == "sell":
@@ -787,3 +781,24 @@ async def place_stock_order(
         else:
             return f"Invalid order side: {side}. Must be 'buy' or 'sell'."
             
+        tif_enum = None
+        if isinstance(time_in_force, TimeInForce):
+            tif_enum = time_in_force
+        elif isinstance(time_in_force, str):
+            time_in_force_upper = time_in_force.upper()
+            if time_in_force_upper == "DAY":
+                tif_enum = TimeInForce.DAY
+            elif time_in_force_upper == "GTC":
+                tif_enum = TimeInForce.GTC
+            elif time_in_force_upper == "OPG":
+                tif_enum = TimeInForce.OPG
+            elif time_in_force_upper == "CLS":
+                tif_enum = TimeInForce.CLS
+            elif time_in_force_upper == "IOC":
+                tif_enum = TimeInForce.IOC
+            elif time_in_force_upper == "FOK":
+                tif_enum = TimeInForce.FOK
+            else:
+                return f"Invalid time_in_force: {time_in_force}. Valid options are: DAY, GTC, OPG, CLS, IOC, FOK"
+        else:
+            return f"Invalid time_in_force type: {type(time_in_force)}. Must be string or TimeInForce enum."
