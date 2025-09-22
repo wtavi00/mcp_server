@@ -758,3 +758,24 @@ async def place_stock_order(
     extended_hours: bool = False,
     client_order_id: str = None
 ) -> str:
+    """
+    Places an order of any supported type (MARKET, LIMIT, STOP, STOP_LIMIT, TRAILING_STOP) using the correct Alpaca request class.
+
+    Args:
+        symbol (str): Stock ticker symbol (e.g., AAPL, MSFT)
+        side (str): Order side (buy or sell)
+        quantity (float): Number of shares to buy or sell
+        order_type (str): Order type (MARKET, LIMIT, STOP, STOP_LIMIT, TRAILING_STOP). Default is MARKET.
+        time_in_force (str): Time in force for the order. Valid options for equity trading: 
+            DAY, GTC, OPG, CLS, IOC, FOK (default: DAY)
+        limit_price (float): Limit price (required for LIMIT, STOP_LIMIT)
+        stop_price (float): Stop price (required for STOP, STOP_LIMIT)
+        trail_price (float): Trail price (for TRAILING_STOP)
+        trail_percent (float): Trail percent (for TRAILING_STOP)
+        extended_hours (bool): Allow execution during extended hours (default: False)
+        client_order_id (str): Optional custom identifier for the order
+
+    Returns:
+        str: Formatted string containing order details or error message.
+    """
+    try:
