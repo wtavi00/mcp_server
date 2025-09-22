@@ -321,3 +321,30 @@ Specify the server in the `mcp` VS Code user settings (`settings.json`) to enabl
   }
 }
 ```
+
+## PyCharm Usage
+
+To use the Alpaca MCP Server with PyCharm, please follow the steps below. The official setup guide for configuring the MCP Server in PyCharm is available here: https://www.jetbrains.com/help/ai-assistant/configure-an-mcp-server.html
+
+PyCharm supports MCP servers through its integrated MCP client functionality. This configuration ensures proper logging behavior and prevents common startup issues.
+
+1. **Open PyCharm Settings**
+   - Go to `File → Settings`
+   - Navigate to `Tools → Model Context Protocol (MCP)` (or similar location depending on PyCharm version)
+
+2. **Add New MCP Server**
+   - Click `Add` or `+` to create a new server configuration. You can also import the settings from Claude by clicking the corresponding button.
+   - **Name**: Enter any name you prefer for this server configuration (e.g., Alpaca MCP).
+   - **Command**: "/path/to/your/alpaca-mcp-server/venv/bin/python"
+   - **Arguments**: "alpaca_mcp_server.py"
+   - **Working directory**: "/path/to/your/alpaca-mcp-server"
+
+3. **Set Environment Variables**
+   Add the following environment variables in the Environment Variables parameter:
+   ```
+   ALPACA_API_KEY="your_alpaca_api_key"
+   ALPACA_SECRET_KEY="your_alpaca_secret_key"
+   MCP_CLIENT=pycharm
+   ```
+
+   
