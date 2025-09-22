@@ -300,3 +300,24 @@ The official VS Code setup document is available here: https://code.visualstudio
       - Linux/macOS: `/Users/username/Documents/alpaca-mcp-server`
       - Windows: `C:\\Users\\username\\Documents\\alpaca-mcp-server`
    
+**For user-wide settings:**
+
+To configure an MCP server for all your workspaces, you can add the server configuration to your user settings.json file. This allows you to reuse the same server configuration across multiple projects.
+Specify the server in the `mcp` VS Code user settings (`settings.json`) to enable the MCP server across all workspaces.
+```json
+{
+  "mcp": {
+    "servers": {
+      "alpaca": {
+        "type": "stdio",
+        "command": "bash",
+        "args": ["-c", "cd ${workspaceFolder} && source ./venv/bin/activate && python alpaca_mcp_server.py"],
+        "env": {
+          "ALPACA_API_KEY": "your_alpaca_api_key",
+          "ALPACA_SECRET_KEY": "your_alpaca_secret_key"
+        }
+      }
+    }
+  }
+}
+```
