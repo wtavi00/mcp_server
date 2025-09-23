@@ -841,3 +841,51 @@ async def place_stock_order(
                 client_order_id=client_order_id or f"order_{int(time.time())}"
             )
 
+        elif order_type_upper == "STOP_LIMIT":
+            if stop_price is None or limit_price is None:
+                return "Both stop_price and limit_price are required for STOP_LIMIT orders."
+            order_data = StopLimitOrderRequest(
+                symbol=symbol,
+                qty=quantity,
+                side=order_side,
+                type=OrderType.STOP_LIMIT,
+                time_in_force=tif_enum,
+                stop_price=stop_price,
+                limit_price=limit_price,
+                extended_hours=extended_hours,
+                client_order_id=client_order_id or f"order_{int(time.time())}"
+            )
+        elif order_type_upper == "TRAILING_STOP":
+            if trail_price is None and trail_percent is None:
+                return "Either trail_price or trail_percent is required for TRAILING_STOP orders."
+            order_data = TrailingStopOrderRequest(
+                symbol=symbol,
+                qty=quantity,
+                side=order_side,
+                type=OrderType.TRAILING_STOP,
+                time_in_force=tif_enum,
+                trail_price=trail_price,
+                trail_percent=trail_percent,
+                extended_hours=extended_hours,
+                client_order_id=client_order_id or f"order_{int(time.time())}"
+            )
+        else:
+            return f"Invalid order type: {order_type}. Must be one of: MARKET, LIMIT, STOP, STOP_LIMIT, TRAILING_STOP."
+
+        # Submit order
+        order = trade_client.submit_order(order_data)
+        return f"""
+                Order Placed Successfully:
+                -------------------------
+                Order ID: {order.id}
+                Symbol: {order.symbol}
+                Side: {order.side}
+                Quantity: {order.qty}
+                Type: {order.type}
+                Time In Force: {order.time_in_force}
+                Status: {order.status}
+                Client Order ID: {order.client_order_id}
+                """
+    except Exception as e:
+        return f"Error placing order: {str(e)}"
+
