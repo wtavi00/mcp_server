@@ -827,4 +827,17 @@ async def place_stock_order(
                 extended_hours=extended_hours,
                 client_order_id=client_order_id or f"order_{int(time.time())}"
             )
+        elif order_type_upper == "STOP":
+            if stop_price is None:
+                return "stop_price is required for STOP orders."
+            order_data = StopOrderRequest(
+                symbol=symbol,
+                qty=quantity,
+                side=order_side,
+                type=OrderType.STOP,
+                time_in_force=tif_enum,
+                stop_price=stop_price,
+                extended_hours=extended_hours,
+                client_order_id=client_order_id or f"order_{int(time.time())}"
+            )
 
