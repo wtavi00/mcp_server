@@ -347,4 +347,17 @@ PyCharm supports MCP servers through its integrated MCP client functionality. Th
    MCP_CLIENT=pycharm
    ```
 
-   
+## Docker Usage
+
+To use Alpaca MCP Server with Docker, please follow the steps below.
+
+**Prerequisite:**  
+You must have [Docker installed](https://docs.docker.com/get-docker/) on your system.
+
+### Run the latest published image (recommended for most users)
+```bash
+docker run -it --rm \
+  -e ALPACA_API_KEY=your_alpaca_api_key \
+  -e ALPACA_SECRET_KEY=your_alpaca_secret_key \
+  ghcr.io/chand1012/alpaca-mcp-server:latest
+```   
