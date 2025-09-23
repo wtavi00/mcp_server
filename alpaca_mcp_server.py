@@ -814,3 +814,17 @@ async def place_stock_order(
                 extended_hours=extended_hours,
                 client_order_id=client_order_id or f"order_{int(time.time())}"
             )
+        elif order_type_upper == "LIMIT":
+            if limit_price is None:
+                return "limit_price is required for LIMIT orders."
+            order_data = LimitOrderRequest(
+                symbol=symbol,
+                qty=quantity,
+                side=order_side,
+                type=OrderType.LIMIT,
+                time_in_force=tif_enum,
+                limit_price=limit_price,
+                extended_hours=extended_hours,
+                client_order_id=client_order_id or f"order_{int(time.time())}"
+            )
+
