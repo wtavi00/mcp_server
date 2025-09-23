@@ -361,3 +361,16 @@ docker run -it --rm \
   -e ALPACA_SECRET_KEY=your_alpaca_secret_key \
   ghcr.io/chand1012/alpaca-mcp-server:latest
 ```   
+
+This pulls and runs the latest published version of the server. Replace `your_alpaca_api_key` and `your_alpaca_secret_key` with your actual keys. If the server exposes a port (e.g., 8080), add `-p 8080:8080` to the command.
+
+### Build and run locally (for development or custom changes)
+```bash
+docker build -t alpaca-mcp-server .
+docker run -it --rm \
+  -e ALPACA_API_KEY=your_alpaca_api_key \
+  -e ALPACA_SECRET_KEY=your_alpaca_secret_key \
+  alpaca-mcp-server
+```
+Use this if you want to run a modified or development version of the server.
+
