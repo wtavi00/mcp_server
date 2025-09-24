@@ -401,3 +401,8 @@ Environment variables can be set either with `-e` flags or in the `"env"` object
 **Security Note:**  Never share your API keys or commit them to public repositories. Be cautious when passing secrets as environment variables, especially in shared or production environments.
 
 **For more advanced Docker usage:**  See the [official Docker documentation](https://docs.docker.com/).
+
+## 4. API Key Configuration for Live Trading
+
+This MCP server connects to Alpaca's **paper trading API** by default for safe testing.
+To enable **live trading with real funds**, update the following configuration files:
