@@ -897,7 +897,7 @@ async def cancel_all_orders() -> str:
         A formatted string containing the status of each cancelled order.
     """
     try:
-        # Cancel all orders
+
         cancel_responses = trade_client.cancel_orders()
         
         if not cancel_responses:
@@ -919,4 +919,34 @@ async def cancel_all_orders() -> str:
         
     except Exception as e:
         return f"Error cancelling orders: {str(e)}"
+
+@mcp.tool()
+async def cancel_order_by_id(order_id: str) -> str:
+    """
+    Cancel a specific order by its ID.
+    
+    Args:
+        order_id: The UUID of the order to cancel
+        
+    Returns:
+        A formatted string containing the status of the cancelled order.
+    """
+    try:
+        response = trade_client.cancel_order_by_id(order_id)
+
+        status = "Success" if response.status == 200 else "Failed"
+        result = f"""
+        Order Cancellation Result:
+        ------------------------
+        Order ID: {response.id}
+        Status: {status}
+        """
+        
+        if response.body:
+            result += f"Details: {response.body}\n"
+            
+        return result
+        
+    except Exception as e:
+        return f"Error cancelling order {order_id}: {str(e)}"
 
