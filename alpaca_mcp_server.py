@@ -872,7 +872,6 @@ async def place_stock_order(
         else:
             return f"Invalid order type: {order_type}. Must be one of: MARKET, LIMIT, STOP, STOP_LIMIT, TRAILING_STOP."
 
-        # Submit order
         order = trade_client.submit_order(order_data)
         return f"""
                 Order Placed Successfully:
@@ -888,4 +887,36 @@ async def place_stock_order(
                 """
     except Exception as e:
         return f"Error placing order: {str(e)}"
+
+@mcp.tool()
+async def cancel_all_orders() -> str:
+    """
+    Cancel all open orders.
+    
+    Returns:
+        A formatted string containing the status of each cancelled order.
+    """
+    try:
+        # Cancel all orders
+        cancel_responses = trade_client.cancel_orders()
+        
+        if not cancel_responses:
+            return "No orders were found to cancel."
+        
+        # Format the response
+        response_parts = ["Order Cancellation Results:"]
+        response_parts.append("-" * 30)
+        
+        for response in cancel_responses:
+            status = "Success" if response.status == 200 else "Failed"
+            response_parts.append(f"Order ID: {response.id}")
+            response_parts.append(f"Status: {status}")
+            if response.body:
+                response_parts.append(f"Details: {response.body}")
+            response_parts.append("-" * 30)
+        
+        return "\n".join(response_parts)
+        
+    except Exception as e:
+        return f"Error cancelling orders: {str(e)}"
 
