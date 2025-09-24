@@ -374,3 +374,30 @@ docker run -it --rm \
 ```
 Use this if you want to run a modified or development version of the server.
 
+### Using with Claude Desktop
+```json
+{
+  "mcpServers": {
+    "alpaca": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "ALPACA_API_KEY",
+        "-e", "ALPACA_SECRET_KEY",
+        "ghcr.io/chand1012/alpaca-mcp-server:latest"
+      ],
+      "env": {
+        "ALPACA_API_KEY": "your_alpaca_api_key",
+        "ALPACA_SECRET_KEY": "your_alpaca_secret_key"
+      }
+    }
+  }
+}
+```
+Environment variables can be set either with `-e` flags or in the `"env"` object, but not both. For Claude Desktop, use the `"env"` object.
+
+**Security Note:**  Never share your API keys or commit them to public repositories. Be cautious when passing secrets as environment variables, especially in shared or production environments.
+
+**For more advanced Docker usage:**  See the [official Docker documentation](https://docs.docker.com/).
