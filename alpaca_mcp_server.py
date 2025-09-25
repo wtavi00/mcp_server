@@ -950,3 +950,38 @@ async def cancel_order_by_id(order_id: str) -> str:
     except Exception as e:
         return f"Error cancelling order {order_id}: {str(e)}"
 
+# ============================================================================
+# Position Management Tools
+# ============================================================================
+
+@mcp.tool()
+async def close_position(symbol: str, qty: Optional[str] = None, percentage: Optional[str] = None) -> str:
+    """
+    Closes a specific position for a single symbol.
+    
+    Args:
+        symbol (str): The symbol of the position to close
+        qty (Optional[str]): Optional number of shares to liquidate
+        percentage (Optional[str]): Optional percentage of shares to liquidate (must result in at least 1 share)
+    
+    Returns:
+        str: Formatted string containing position closure details or error message
+    """
+    try:
+        close_options = None
+        if qty or percentage:
+            close_options = ClosePositionRequest(
+                qty=qty,
+                percentage=percentage
+            )
+
+        order = trade_client.close_position(symbol, close_options)
+        
+        return f"""
+                Position Closed Successfully:
+                ----------------------------
+                Symbol: {symbol}
+                Order ID: {order.id}
+                Status: {order.status}
+                """
+                
