@@ -984,4 +984,22 @@ async def close_position(symbol: str, qty: Optional[str] = None, percentage: Opt
                 Order ID: {order.id}
                 Status: {order.status}
                 """
-                
+        
+    except APIError as api_error:
+        error_message = str(api_error)
+        if "42210000" in error_message and "would result in order size of zero" in error_message:
+            return """
+            Error: Invalid position closure request.
+            
+            The requested percentage would result in less than 1 share.
+            Please either:
+            1. Use a higher percentage
+            2. Close the entire position (100%)
+            3. Specify an exact quantity using the qty parameter
+            """
+        else:
+            return f"Error closing position: {error_message}"
+            
+    except Exception as e:
+        return f"Error closing position: {str(e)}"                
+
