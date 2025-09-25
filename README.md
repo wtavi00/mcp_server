@@ -406,3 +406,19 @@ Environment variables can be set either with `-e` flags or in the `"env"` object
 
 This MCP server connects to Alpaca's **paper trading API** by default for safe testing.
 To enable **live trading with real funds**, update the following configuration files:
+
+### Set Your API Credentials in Two Places:
+
+1. **Update environment file in the project directory**
+
+    Provide your live account keys as environment variables in the `.env` file:
+    ```
+    ALPACA_API_KEY = "your_alpaca_api_key_for_live_account"
+    ALPACA_SECRET_KEY = "your_alpaca_secret_key_for_live_account"
+    ALPACA_PAPER_TRADE = False
+    TRADE_API_URL = None
+    TRADE_API_WSS = None
+    DATA_API_URL = None
+    STREAM_DATA_WSS = None
+    ```
+    
