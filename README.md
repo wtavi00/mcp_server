@@ -462,3 +462,35 @@ To enable **live trading with real funds**, update the following configuration f
 * `get_stock_snapshot(symbol_or_symbols, feed=None, currency=None)` - Comprehensive snapshot with latest quote, trade, minute bar, daily bar, and previous daily bar
 * `get_stock_trades(symbol, days=5, limit=None, sort=Sort.ASC, feed=None, currency=None, asof=None)` - Trade-level history
 
+### Orders
+
+* `get_orders(status, limit)` - Retrieve all or filtered orders
+* `place_stock_order(symbol, side, quantity, order_type="market", limit_price=None, stop_price=None, trail_price=None, trail_percent=None, time_in_force="day", extended_hours=False, client_order_id=None)` - Place a stock order of any type (market, limit, stop, stop_limit, trailing_stop)
+* `cancel_order_by_id(order_id)` - Cancel a specific order
+* `cancel_all_orders()` - Cancel all open orders
+
+### Options
+
+* `get_option_contracts(underlying_symbol, expiration_date=None, expiration_month=None, expiration_year=None, expiration_week_start=None, strike_price_gte=None, strike_price_lte=None, type=None, status=None, root_symbol=None, limit=None)` – Fetch contracts with comprehensive filtering options
+* `get_option_latest_quote(option_symbol)` - Latest bid/ask on contract
+* `get_option_snapshot(symbol_or_symbols)` - Get Greeks and underlying
+* `place_option_market_order(legs, order_class=None, quantity=1, time_in_force=TimeInForce.DAY, extended_hours=False)` - Execute option strategy
+
+### Market Info & Corporate Actions
+
+* `get_market_clock()` - Market open/close schedule
+* `get_market_calendar(start, end)` - Holidays and trading days
+* `get_corporate_announcements(...)` - Historical earnings, dividends, splits
+
+
+### Watchlists
+
+* `create_watchlist(name, symbols)` - Create a new list
+* `update_watchlist(watchlist_id, name=None, symbols=None)` - Modify an existing list
+* `get_watchlists()` - Retrieve all saved watchlists
+
+### Assets
+
+* `get_asset_info(symbol)` - Search asset metadata
+* `get_all_assets(status=None, asset_class=None, exchange=None, attributes=None)` - List all tradable instruments with filtering options
+
