@@ -494,3 +494,20 @@ To enable **live trading with real funds**, update the following configuration f
 * `get_asset_info(symbol)` - Search asset metadata
 * `get_all_assets(status=None, asset_class=None, exchange=None, attributes=None)` - List all tradable instruments with filtering options
 
+## Example Natural Language Queries
+See the "Example Queries" section below for 50 real examples covering everything from trading to corporate data to option strategies.
+
+### Basic Trading
+1. What's my current account balance and buying power on Alpaca?
+2. Show me my current positions in my Alpaca account.
+3. Buy 5 shares of AAPL at market price.
+4. Sell 5 shares of TSLA with a limit price of $300.
+5. Cancel all open stock orders.
+6. Cancel the order with ID abc123.
+7. Liquidate my entire position in GOOGL.
+8. Close 10% of my position in NVDA.
+9. Place a limit order to buy 100 shares of MSFT at $450.
+10. Place a market order to sell 25 shares of META.
+
+
+
