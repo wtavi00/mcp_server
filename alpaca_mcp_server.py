@@ -1037,4 +1037,42 @@ async def close_all_positions(cancel_orders: bool = False) -> str:
     except Exception as e:
         return f"Error closing positions: {str(e)}"
 
+# ============================================================================
+# Asset Information Tools
+# ============================================================================
+
+@mcp.tool()
+async def get_asset_info(symbol: str) -> str:
+    """
+    Retrieves and formats detailed information about a specific asset.
+    
+    Args:
+        symbol (str): The symbol of the asset to get information for
+    
+    Returns:
+        str: Formatted string containing asset details including:
+            - Name
+            - Exchange
+            - Class
+            - Status
+            - Trading Properties
+    """
+    try:
+        asset = trade_client.get_asset(symbol)
+        return f"""
+                Asset Information for {symbol}:
+                ----------------------------
+                Name: {asset.name}
+                Exchange: {asset.exchange}
+                Class: {asset.asset_class}
+                Status: {asset.status}
+                Tradable: {'Yes' if asset.tradable else 'No'}
+                Marginable: {'Yes' if asset.marginable else 'No'}
+                Shortable: {'Yes' if asset.shortable else 'No'}
+                Easy to Borrow: {'Yes' if asset.easy_to_borrow else 'No'}
+                Fractionable: {'Yes' if asset.fractionable else 'No'}
+                """
+    except Exception as e:
+        return f"Error fetching asset information: {str(e)}"
+
 
