@@ -444,3 +444,21 @@ To enable **live trading with real funds**, update the following configuration f
    ```
 
 ## Available Tools
+
+### Account & Positions
+
+* `get_account_info()` – View balance, margin, and account status
+* `get_positions()` – List all held assets
+* `get_open_position(symbol)` – Detailed info on a specific position
+* `close_position(symbol, qty|percentage)` – Close part or all of a position
+* `close_all_positions(cancel_orders)` – Liquidate entire portfolio
+
+### Stock Market Data
+
+* `get_stock_quote(symbol)` - Real-time bid/ask quote
+* `get_stock_bars(symbol, days=5, timeframe="1Day", limit=None, start=None, end=None)` - OHLCV historical bars with flexible timeframes (1Min, 5Min, 1Hour, 1Day, etc.)
+* `get_stock_latest_trade(symbol, feed=None, currency=None)` - Latest market trade price
+* `get_stock_latest_bar(symbol, feed=None, currency=None)` - Most recent OHLC bar
+* `get_stock_snapshot(symbol_or_symbols, feed=None, currency=None)` - Comprehensive snapshot with latest quote, trade, minute bar, daily bar, and previous daily bar
+* `get_stock_trades(symbol, days=5, limit=None, sort=Sort.ASC, feed=None, currency=None, asof=None)` - Trade-level history
+
