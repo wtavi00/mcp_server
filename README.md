@@ -422,3 +422,25 @@ To enable **live trading with real funds**, update the following configuration f
     STREAM_DATA_WSS = None
     ```
     
+2. **Update Configuration file**
+
+   For example, when using Claude Desktop, provide your live account keys as environment variables in `claude_desktop_config.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "alpaca": {
+         "command": "<project_root>/venv/bin/python",
+         "args": [
+           "/path/to/alpaca_mcp_server.py"
+         ],
+         "env": {
+           "ALPACA_API_KEY": "your_alpaca_api_key_for_live_account",
+           "ALPACA_SECRET_KEY": "your_alpaca_secret_key_for_live_account"
+         }
+       }
+     }
+   }
+   ```
+
+## Available Tools
