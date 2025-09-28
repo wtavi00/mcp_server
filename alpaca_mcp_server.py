@@ -1076,3 +1076,14 @@ async def get_asset_info(symbol: str) -> str:
         return f"Error fetching asset information: {str(e)}"
 
 
+@mcp.tool()
+async def close_all_positions(cancel_orders: bool = False) -> str:
+    """
+    Closes all open positions.
+    
+    Args:
+        cancel_orders (bool): If True, cancels all open orders before liquidating positions
+    
+    Returns:
+        str: Formatted string containing position closure results
+    """
