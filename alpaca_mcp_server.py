@@ -1110,3 +1110,7 @@ async def close_all_positions(cancel_orders: bool = False) -> str:
     except Exception as e:
         return f"Error closing positions: {str(e)}"
 
+# ============================================================================
+# Asset Information Tools
+# ============================================================================
+
