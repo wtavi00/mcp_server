@@ -1087,3 +1087,26 @@ async def close_all_positions(cancel_orders: bool = False) -> str:
     Returns:
         str: Formatted string containing position closure results
     """
+    try:
+        # Close all positions
+        close_responses = trade_client.close_all_positions(cancel_orders=cancel_orders)
+        
+        if not close_responses:
+            return "No positions were found to close."
+        
+        # Format the response
+        response_parts = ["Position Closure Results:"]
+        response_parts.append("-" * 30)
+        
+        for response in close_responses:
+            response_parts.append(f"Symbol: {response.symbol}")
+            response_parts.append(f"Status: {response.status}")
+            if response.order_id:
+                response_parts.append(f"Order ID: {response.order_id}")
+            response_parts.append("-" * 30)
+        
+        return "\n".join(response_parts)
+        
+    except Exception as e:
+        return f"Error closing positions: {str(e)}"
+
