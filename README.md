@@ -509,5 +509,16 @@ See the "Example Queries" section below for 50 real examples covering everything
 9. Place a limit order to buy 100 shares of MSFT at $450.
 10. Place a market order to sell 25 shares of META.
 
+### Option Trading
+11. Show me available option contracts for AAPL expiring next month.
+12. Get the latest quote for the AAPL250613C00200000 option.
+13. Retrieve the option snapshot for the SPY250627P00400000 option.
+14. Liquidate my position in 2 contracts of QQQ calls expiring next week.
+15. Place a market order to buy 1 call option on AAPL expiring next Friday.
+16. What are the option Greeks for the TSLA250620P00500000 option?
+17. Find TSLA option contracts with strike prices within 5% of the current market price.
+18. Get SPY call options expiring the week of June 16th, 2025, within 10% of market price.
+19. Place a bull call spread using AAPL June 6th options: one with a 190.00 strike and the other with a 200.00 strike.
+
 
 
