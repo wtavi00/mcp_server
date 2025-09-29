@@ -1114,3 +1114,21 @@ async def close_all_positions(cancel_orders: bool = False) -> str:
 # Asset Information Tools
 # ============================================================================
 
+@mcp.tool()
+async def get_asset_info(symbol: str) -> str:
+    """
+    Retrieves and formats detailed information about a specific asset.
+    
+    Args:
+        symbol (str): The symbol of the asset to get information for
+    
+    Returns:
+        str: Formatted string containing asset details including:
+            - Name
+            - Exchange
+            - Class
+            - Status
+            - Trading Properties
+    """
+    try:
+        
