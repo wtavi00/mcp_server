@@ -1131,4 +1131,21 @@ async def get_asset_info(symbol: str) -> str:
             - Trading Properties
     """
     try:
-        
+        asset = trade_client.get_asset(symbol)
+        return f"""
+                Asset Information for {symbol}:
+                ----------------------------
+                Name: {asset.name}
+                Exchange: {asset.exchange}
+                Class: {asset.asset_class}
+                Status: {asset.status}
+                Tradable: {'Yes' if asset.tradable else 'No'}
+                Marginable: {'Yes' if asset.marginable else 'No'}
+                Shortable: {'Yes' if asset.shortable else 'No'}
+                Easy to Borrow: {'Yes' if asset.easy_to_borrow else 'No'}
+                Fractionable: {'Yes' if asset.fractionable else 'No'}
+                """
+    except Exception as e:
+        return f"Error fetching asset information: {str(e)}"
+
+
