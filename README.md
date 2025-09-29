@@ -520,5 +520,12 @@ See the "Example Queries" section below for 50 real examples covering everything
 18. Get SPY call options expiring the week of June 16th, 2025, within 10% of market price.
 19. Place a bull call spread using AAPL June 6th options: one with a 190.00 strike and the other with a 200.00 strike.
 
+### Market Information
+20. Is the US stock market currently open?
+21. What are the market open and close times today?
+22. Show me the market calendar for next week.
+23. Show me recent cash dividends and stock splits for AAPL, MSFT, and GOOGL in the last 3 months.
+24. Get all corporate actions for SPY including dividends, splits, and any mergers in the past year.
+25. What are the upcoming corporate actions scheduled for SPY in the next 6 months?
 
 
