@@ -528,4 +528,39 @@ See the "Example Queries" section below for 50 real examples covering everything
 24. Get all corporate actions for SPY including dividends, splits, and any mergers in the past year.
 25. What are the upcoming corporate actions scheduled for SPY in the next 6 months?
 
+### Historical & Real-time Data
+26. Show me AAPL's daily price history for the last 5 trading days.
+27. What was the closing price of TSLA yesterday?
+28. Get the latest bar for GOOGL.
+29. What was the latest trade price for NVDA?
+30. Show me the most recent quote for MSFT.
+31. Retrieve the last 100 trades for AMD.
+32. Show me 1-minute bars for AMZN from the last 2 hours.
+33. Get 5-minute intraday bars for TSLA from last Tuesday through last Friday.
+34. Get a comprehensive stock snapshot for AAPL showing latest quote, trade, minute bar, daily bar, and previous daily bar all in one view.
+35. Compare market snapshots for TSLA, NVDA, and MSFT to analyze their current bid/ask spreads, latest trade prices, and daily performance.
+
+### Orders
+36. Show me all my open and filled orders from this week.
+37. What orders do I have for AAPL?
+38. List all limit orders I placed in the past 3 days.
+39. Filter all orders by status: filled.
+40. Get me the order history for yesterday.
+
+### Watchlists
+> At this moment, you can only view and update trading watchlists created via Alpaca’s Trading API through the API itself
+41. Create a new watchlist called "Tech Stocks" with AAPL, MSFT, and NVDA.
+42. Update my "Tech Stocks" watchlist to include TSLA and AMZN.
+43. What stocks are in my "Dividend Picks" watchlist?
+44. Remove META from my "Growth Portfolio" watchlist.
+45. List all my existing watchlists.
+
+### Asset Information
+46. Search for details about the asset 'AAPL'.
+47. Show me the top 5 tradable crypto assets by trading volume.
+48. Filter assets with status 'active' for tech stocks.
+
+### Combined Scenarios
+49. Get today's market clock and show me my buying power before placing a limit buy order for TSLA at $340.
+50. Place a bull call spread with SPY July 3rd options: buy one 5% above and sell one 3% below the current SPY price.
 
