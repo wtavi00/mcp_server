@@ -1148,4 +1148,105 @@ async def get_asset_info(symbol: str) -> str:
     except Exception as e:
         return f"Error fetching asset information: {str(e)}"
 
+@mcp.tool()
+async def get_all_assets(
+    status: Optional[str] = None,
+    asset_class: Optional[str] = None,
+    exchange: Optional[str] = None,
+    attributes: Optional[str] = None
+) -> str:
+    """
+    Get all available assets with optional filtering.
+    
+    Args:
+        status: Filter by asset status (e.g., 'active', 'inactive')
+        asset_class: Filter by asset class (e.g., 'us_equity', 'crypto')
+        exchange: Filter by exchange (e.g., 'NYSE', 'NASDAQ')
+        attributes: Comma-separated values to query for multiple attributes
+    """
+    try:
+        # Create filter if any parameters are provided
+        filter_params = None
+        if any([status, asset_class, exchange, attributes]):
+            filter_params = GetAssetsRequest(
+                status=status,
+                asset_class=asset_class,
+                exchange=exchange,
+                attributes=attributes
+            )
+        
+        # Get all assets
+        assets = trade_client.get_all_assets(filter_params)
+        
+        if not assets:
+            return "No assets found matching the criteria."
+        
+        # Format the response
+        response_parts = ["Available Assets:"]
+        response_parts.append("-" * 30)
+        
+        for asset in assets:
+            response_parts.append(f"Symbol: {asset.symbol}")
+            response_parts.append(f"Name: {asset.name}")
+            response_parts.append(f"Exchange: {asset.exchange}")
+            response_parts.append(f"Class: {asset.asset_class}")
+            response_parts.append(f"Status: {asset.status}")
+            response_parts.append(f"Tradable: {'Yes' if asset.tradable else 'No'}")
+            response_parts.append("-" * 30)
+        
+        return "\n".join(response_parts)
+        
+    except Exception as e:
+        return f"Error fetching assets: {str(e)}"
+
+# ============================================================================
+# Watchlist Management Tools
+# ============================================================================
+
+@mcp.tool()
+async def create_watchlist(name: str, symbols: List[str]) -> str:
+    """
+    Creates a new watchlist with specified symbols.
+    
+    Args:
+        name (str): Name of the watchlist
+        symbols (List[str]): List of symbols to include in the watchlist
+    
+    Returns:
+        str: Confirmation message with watchlist creation status
+    """
+    try:
+        watchlist_data = CreateWatchlistRequest(name=name, symbols=symbols)
+        watchlist = trade_client.create_watchlist(watchlist_data)
+        return f"Watchlist '{name}' created successfully with {len(symbols)} symbols."
+    except Exception as e:
+        return f"Error creating watchlist: {str(e)}"
+
+@mcp.tool()
+async def get_watchlists() -> str:
+    """Get all watchlists for the account."""
+    try:
+        watchlists = trade_client.get_watchlists()
+        result = "Watchlists:\n------------\n"
+        for wl in watchlists:
+            result += f"Name: {wl.name}\n"
+            result += f"ID: {wl.id}\n"
+            result += f"Created: {wl.created_at}\n"
+            result += f"Updated: {wl.updated_at}\n"
+            # Use wl.symbols, fallback to empty list if missing
+            result += f"Symbols: {', '.join(getattr(wl, 'symbols', []) or [])}\n\n"
+        return result
+    except Exception as e:
+        return f"Error fetching watchlists: {str(e)}"
+
+@mcp.tool()
+async def update_watchlist(watchlist_id: str, name: str = None, symbols: List[str] = None) -> str:
+    """Update an existing watchlist."""
+    try:
+        update_request = UpdateWatchlistRequest(name=name, symbols=symbols)
+        watchlist = trade_client.update_watchlist_by_id(watchlist_id, update_request)
+        return f"Watchlist updated successfully: {watchlist.name}"
+    except Exception as e:
+        return f"Error updating watchlist: {str(e)}"
+
 
