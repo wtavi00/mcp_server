@@ -1250,3 +1250,185 @@ async def update_watchlist(watchlist_id: str, name: str = None, symbols: List[st
         return f"Error updating watchlist: {str(e)}"
 
 
+# ============================================================================
+# Market Information Tools
+# ============================================================================
+
+@mcp.tool()
+async def get_market_clock() -> str:
+    """
+    Retrieves and formats current market status and next open/close times.
+    
+    Returns:
+        str: Formatted string containing:
+            - Current Time
+            - Market Open Status
+            - Next Open Time
+            - Next Close Time
+    """
+    try:
+        clock = trade_client.get_clock()
+        return f"""
+                Market Status:
+                -------------
+                Current Time: {clock.timestamp}
+                Is Open: {'Yes' if clock.is_open else 'No'}
+                Next Open: {clock.next_open}
+                Next Close: {clock.next_close}
+                """
+    except Exception as e:
+        return f"Error fetching market clock: {str(e)}"
+
+@mcp.tool()
+async def get_market_calendar(start_date: str, end_date: str) -> str:
+    """
+    Retrieves and formats market calendar for specified date range.
+    
+    Args:
+        start_date (str): Start date in YYYY-MM-DD format
+        end_date (str): End date in YYYY-MM-DD format
+    
+    Returns:
+        str: Formatted string containing market calendar information
+    """
+    try:
+        # Convert string dates to date objects
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d").date()
+        
+        # Create the request object with the correct parameters
+        calendar_request = GetCalendarRequest(start=start_dt, end=end_dt)
+        calendar = trade_client.get_calendar(calendar_request)
+        
+        result = f"Market Calendar ({start_date} to {end_date}):\n----------------------------\n"
+        for day in calendar:
+            result += f"Date: {day.date}, Open: {day.open}, Close: {day.close}\n"
+        return result
+    except Exception as e:
+        return f"Error fetching market calendar: {str(e)}"
+
+# ============================================================================
+# Corporate Actions Tools
+# ============================================================================
+
+@mcp.tool()
+async def get_corporate_announcements(
+    ca_types: Optional[List[CorporateActionsType]] = None,
+    start: Optional[date] = None,
+    end: Optional[date] = None,
+    symbols: Optional[List[str]] = None,
+    cusips: Optional[List[str]] = None,
+    ids: Optional[List[str]] = None,
+    limit: Optional[int] = 1000,
+    sort: Optional[str] = "asc"
+) -> str:
+    """
+    Retrieves and formats corporate action announcements.
+    
+    Args:
+        ca_types (Optional[List[CorporateActionsType]]): List of corporate action types to filter by (default: all types)
+            Available types from https://alpaca.markets/sdks/python/api_reference/data/enums.html#corporateactionstype:
+            - CorporateActionsType.REVERSE_SPLIT: Reverse split
+            - CorporateActionsType.FORWARD_SPLIT: Forward split  
+            - CorporateActionsType.UNIT_SPLIT: Unit split
+            - CorporateActionsType.CASH_DIVIDEND: Cash dividend
+            - CorporateActionsType.STOCK_DIVIDEND: Stock dividend
+            - CorporateActionsType.SPIN_OFF: Spin off
+            - CorporateActionsType.CASH_MERGER: Cash merger
+            - CorporateActionsType.STOCK_MERGER: Stock merger
+            - CorporateActionsType.STOCK_AND_CASH_MERGER: Stock and cash merger
+            - CorporateActionsType.REDEMPTION: Redemption
+            - CorporateActionsType.NAME_CHANGE: Name change
+            - CorporateActionsType.WORTHLESS_REMOVAL: Worthless removal
+            - CorporateActionsType.RIGHTS_DISTRIBUTION: Rights distribution
+        start (Optional[date]): Start date for the announcements (default: current day)
+        end (Optional[date]): End date for the announcements (default: current day)
+        symbols (Optional[List[str]]): Optional list of stock symbols to filter by
+        cusips (Optional[List[str]]): Optional list of CUSIPs to filter by
+        ids (Optional[List[str]]): Optional list of corporate action IDs (mutually exclusive with other filters)
+        limit (Optional[int]): Maximum number of results to return (default: 1000)
+        sort (Optional[str]): Sort order (asc or desc, default: asc)
+    
+    Returns:
+        str: Formatted string containing corporate announcement details
+        
+    References:
+        - API Documentation: https://docs.alpaca.markets/reference/corporateactions-1
+        - CorporateActionsType Enum: https://alpaca.markets/sdks/python/api_reference/data/enums.html#corporateactionstype
+        - CorporateActionsRequest: https://alpaca.markets/sdks/python/api_reference/data/corporate_actions/requests.html#corporateactionsrequest
+    """
+    try:
+        request = CorporateActionsRequest(
+            symbols=symbols,
+            cusips=cusips,
+            types=ca_types,
+            start=start,
+            end=end,
+            ids=ids,
+            limit=limit,
+            sort=sort
+        )
+        announcements = corporate_actions_client.get_corporate_actions(request)
+        
+        if not announcements or not announcements.data:
+            return "No corporate announcements found for the specified criteria."
+        
+        result = "Corporate Announcements:\n----------------------\n"
+        
+        # The response.data contains action types as keys (e.g., 'cash_dividends', 'forward_splits')
+        # Each value is a list of corporate actions
+        for action_type, actions_list in announcements.data.items():
+            if not actions_list:
+                continue
+                
+            result += f"\n{action_type.replace('_', ' ').title()}:\n"
+            result += "=" * 30 + "\n"
+            
+            for action in actions_list:
+                # Group by symbol for better organization
+                symbol = getattr(action, 'symbol', 'Unknown')
+                result += f"\nSymbol: {symbol}\n"
+                result += "-" * 15 + "\n"
+                
+                # Display action details based on available attributes
+                if hasattr(action, 'corporate_action_type'):
+                    result += f"Type: {action.corporate_action_type}\n"
+                
+                if hasattr(action, 'ex_date') and action.ex_date:
+                    result += f"Ex Date: {action.ex_date}\n"
+                    
+                if hasattr(action, 'record_date') and action.record_date:
+                    result += f"Record Date: {action.record_date}\n"
+                    
+                if hasattr(action, 'payable_date') and action.payable_date:
+                    result += f"Payable Date: {action.payable_date}\n"
+                    
+                if hasattr(action, 'process_date') and action.process_date:
+                    result += f"Process Date: {action.process_date}\n"
+                
+                # Cash dividend specific fields
+                if hasattr(action, 'rate') and action.rate:
+                    result += f"Rate: ${action.rate:.6f}\n"
+                    
+                if hasattr(action, 'foreign') and hasattr(action, 'special'):
+                    result += f"Foreign: {action.foreign}, Special: {action.special}\n"
+                
+                # Split specific fields
+                if hasattr(action, 'old_rate') and action.old_rate:
+                    result += f"Old Rate: {action.old_rate}\n"
+                    
+                if hasattr(action, 'new_rate') and action.new_rate:
+                    result += f"New Rate: {action.new_rate}\n"
+                
+                # Due bill dates
+                if hasattr(action, 'due_bill_on_date') and action.due_bill_on_date:
+                    result += f"Due Bill On Date: {action.due_bill_on_date}\n"
+                    
+                if hasattr(action, 'due_bill_off_date') and action.due_bill_off_date:
+                    result += f"Due Bill Off Date: {action.due_bill_off_date}\n"
+                
+                result += "\n"
+        return result
+    except Exception as e:
+        return f"Error fetching corporate announcements: {str(e)}"
+
