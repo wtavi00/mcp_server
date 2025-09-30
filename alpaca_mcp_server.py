@@ -1608,3 +1608,61 @@ async def get_option_contracts(
         
     except Exception as e:
         return f"Error fetching option contracts: {str(e)}"
+@mcp.tool()
+async def get_option_latest_quote(
+    symbol: str,
+    feed: Optional[OptionsFeed] = None
+) -> str:
+    """
+    Retrieves and formats the latest quote for an option contract. This endpoint returns real-time
+    pricing and market data, including bid/ask prices, sizes, and exchange information.
+    
+    Args:
+        symbol (str): The option contract symbol (e.g., 'AAPL230616C00150000')
+        feed (Optional[OptionsFeed]): The source feed of the data (opra or indicative).
+            Default: opra if the user has the options subscription, indicative otherwise.
+    
+    Returns:
+        str: Formatted string containing the latest quote information including:
+            - Ask Price and Ask Size
+            - Bid Price and Bid Size
+            - Ask Exchange and Bid Exchange
+            - Trade Conditions
+            - Tape Information
+            - Timestamp (in UTC)
+    
+    Note:
+        This endpoint returns real-time market data. For contract specifications and static data,
+        use get_option_contracts instead.
+    """
+    try:
+        # Create the request object
+        request = OptionLatestQuoteRequest(
+            symbol_or_symbols=symbol,
+            feed=feed
+        )
+        
+        # Get the latest quote
+        quotes = option_historical_data_client.get_option_latest_quote(request)
+        
+        if symbol in quotes:
+            quote = quotes[symbol]
+            return f"""
+                Latest Quote for {symbol}:
+                ------------------------
+                Ask Price: ${float(quote.ask_price):.2f}
+                Ask Size: {quote.ask_size}
+                Ask Exchange: {quote.ask_exchange}
+                Bid Price: ${float(quote.bid_price):.2f}
+                Bid Size: {quote.bid_size}
+                Bid Exchange: {quote.bid_exchange}
+                Conditions: {quote.conditions}
+                Tape: {quote.tape}
+                Timestamp: {quote.timestamp}
+                """
+        else:
+            return f"No quote data found for {symbol}."
+            
+    except Exception as e:
+        return f"Error fetching option quote: {str(e)}"
+
