@@ -564,3 +564,18 @@ See the "Example Queries" section below for 50 real examples covering everything
 49. Get today's market clock and show me my buying power before placing a limit buy order for TSLA at $340.
 50. Place a bull call spread with SPY July 3rd options: buy one 5% above and sell one 3% below the current SPY price.
 
+
+## Example Outputs
+
+The MCP server provides detailed, well-formatted responses for various trading queries. Here are some examples:
+
+### Option Greeks Analysis
+Query: "What are the option Greeks for TSLA250620P00500000?"
+
+Response:
+Option Details:
+- Current Bid/Ask: $142.62 / $143.89
+- Last Trade: $138.85
+- Implied Volatility: 92.54%
+
+- 
