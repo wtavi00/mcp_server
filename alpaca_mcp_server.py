@@ -1779,3 +1779,90 @@ async def get_option_snapshot(symbol_or_symbols: Union[str, List[str]], feed: Op
     except Exception as e:
         return f"Error retrieving option snapshots: {str(e)}"
 
+# ============================================================================
+# Options Trading Helper Functions
+# ============================================================================
+
+def _validate_option_order_inputs(legs: List[Dict[str, Any]], quantity: int, time_in_force: TimeInForce) -> Optional[str]:
+    """Validate inputs for option order placement."""
+    if not legs:
+        return "Error: No option legs provided"
+    if len(legs) > 4:
+        return "Error: Maximum of 4 legs allowed for option orders"
+    if quantity <= 0:
+        return "Error: Quantity must be positive"
+    if time_in_force != TimeInForce.DAY:
+        return "Error: Only DAY time_in_force is supported for options trading"
+    return None
+
+def _convert_order_class_string(order_class: Optional[Union[str, OrderClass]]) -> Union[OrderClass, str]:
+    """Convert order class string to enum if needed."""
+    if isinstance(order_class, str):
+        order_class_upper = order_class.upper()
+        class_mapping = {
+            'SIMPLE': OrderClass.SIMPLE,
+            'BRACKET': OrderClass.BRACKET,
+            'OCO': OrderClass.OCO,
+            'OTO': OrderClass.OTO,
+            'MLEG': OrderClass.MLEG
+        }
+        if order_class_upper in class_mapping:
+            return class_mapping[order_class_upper]
+        else:
+            return f"Invalid order class: {order_class}. Must be one of: simple, bracket, oco, oto, mleg"
+    return order_class
+
+def _process_option_legs(legs: List[Dict[str, Any]]) -> Union[List[OptionLegRequest], str]:
+    """Convert leg dictionaries to OptionLegRequest objects."""
+    order_legs = []
+    for leg in legs:
+        # Validate ratio_qty
+        if not isinstance(leg['ratio_qty'], int) or leg['ratio_qty'] <= 0:
+            return f"Error: Invalid ratio_qty for leg {leg['symbol']}. Must be positive integer."
+        
+        # Convert side string to enum
+        if leg['side'].lower() == "buy":
+            order_side = OrderSide.BUY
+        elif leg['side'].lower() == "sell":
+            order_side = OrderSide.SELL
+        else:
+            return f"Invalid order side: {leg['side']}. Must be 'buy' or 'sell'."
+        
+        order_legs.append(OptionLegRequest(
+            symbol=leg['symbol'],
+            side=order_side,
+            ratio_qty=leg['ratio_qty']
+        ))
+    return order_legs
+
+def _create_option_market_order_request(
+    order_legs: List[OptionLegRequest], 
+    order_class: OrderClass, 
+    quantity: int,
+    time_in_force: TimeInForce,
+    extended_hours: bool
+) -> MarketOrderRequest:
+    """Create the appropriate MarketOrderRequest based on order class."""
+    if order_class == OrderClass.MLEG:
+        return MarketOrderRequest(
+            qty=quantity,
+            order_class=order_class,
+            time_in_force=time_in_force,
+            extended_hours=extended_hours,
+            client_order_id=f"mcp_opt_{int(time.time())}",
+            type=OrderType.MARKET,
+            legs=order_legs
+        )
+    else:
+        # For single-leg orders
+        return MarketOrderRequest(
+            symbol=order_legs[0].symbol,
+            qty=quantity,
+            side=order_legs[0].side,
+            order_class=order_class,
+            time_in_force=time_in_force,
+            extended_hours=extended_hours,
+            client_order_id=f"mcp_opt_{int(time.time())}",
+            type=OrderType.MARKET
+        )
+
