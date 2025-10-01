@@ -578,4 +578,15 @@ Option Details:
 - Last Trade: $138.85
 - Implied Volatility: 92.54%
 
-- 
+Greeks:
+- Delta: -0.8968 (Very Bearish)
+- Gamma: 0.0021 (Low Rate of Change)
+- Theta: -0.2658 (Time Decay: $26.58/day)
+- Vega: 0.1654 (Volatility Sensitivity)
+- Rho: -0.3060 (Interest Rate Sensitivity)
+
+Key Insights:
+- High Implied Volatility (92.54%)
+- Deep In-the-Money (Delta: -0.90)
+- Significant Time Decay ($27/day)
+
