@@ -1866,3 +1866,199 @@ def _create_option_market_order_request(
             type=OrderType.MARKET
         )
 
+def _format_option_order_response(order: Order, order_class: OrderClass, order_legs: List[OptionLegRequest]) -> str:
+    """Format the successful order response."""
+    result = f"""
+            Option Market Order Placed Successfully:
+            --------------------------------------
+            Order ID: {order.id}
+            Client Order ID: {order.client_order_id}
+            Order Class: {order.order_class}
+            Order Type: {order.type}
+            Time In Force: {order.time_in_force}
+            Status: {order.status}
+            Quantity: {order.qty}
+            Created At: {order.created_at}
+            Updated At: {order.updated_at}
+            """
+    
+    if order_class == OrderClass.MLEG and order.legs:
+        result += "\nLegs:\n"
+        for leg in order.legs:
+            result += f"""
+                    Symbol: {leg.symbol}
+                    Side: {leg.side}
+                    Ratio Quantity: {leg.ratio_qty}
+                    Status: {leg.status}
+                    Asset Class: {leg.asset_class}
+                    Created At: {leg.created_at}
+                    Updated At: {leg.updated_at}
+                    Filled Price: {leg.filled_avg_price if hasattr(leg, 'filled_avg_price') else 'Not filled'}
+                    Filled Time: {leg.filled_at if hasattr(leg, 'filled_at') else 'Not filled'}
+                    -------------------------
+                    """
+    else:
+        result += f"""
+                Symbol: {order.symbol}
+                Side: {order_legs[0].side}
+                Filled Price: {order.filled_avg_price if hasattr(order, 'filled_avg_price') else 'Not filled'}
+                Filled Time: {order.filled_at if hasattr(order, 'filled_at') else 'Not filled'}
+                -------------------------
+                """
+    
+    return result
+
+def _analyze_option_strategy_type(order_legs: List[OptionLegRequest], order_class: OrderClass) -> tuple[bool, bool, bool]:
+    """Analyze the option strategy type for error handling."""
+    is_short_straddle = False
+    is_short_strangle = False
+    is_short_calendar = False
+    
+    if order_class == OrderClass.MLEG and len(order_legs) == 2:
+        both_short = order_legs[0].side == OrderSide.SELL and order_legs[1].side == OrderSide.SELL
+        
+        if both_short:
+            # Check for short straddle (same strike, same expiration, both short)
+            if (order_legs[0].symbol.split('C')[0] == order_legs[1].symbol.split('P')[0]):
+                is_short_straddle = True
+            else:
+                is_short_strangle = True
+                
+            # Check for short calendar spread (same strike, different expirations, both short)
+            leg1_type = 'C' if 'C' in order_legs[0].symbol else 'P'
+            leg2_type = 'C' if 'C' in order_legs[1].symbol else 'P'
+            
+            if leg1_type == 'C' and leg2_type == 'C':
+                leg1_exp = order_legs[0].symbol.split(leg1_type)[1][:6]
+                leg2_exp = order_legs[1].symbol.split(leg2_type)[1][:6]
+                if leg1_exp != leg2_exp:
+                    is_short_calendar = True
+                    is_short_strangle = False  # Override strangle detection
+    
+    return is_short_straddle, is_short_strangle, is_short_calendar
+
+def _get_short_straddle_error_message() -> str:
+    """Get error message for short straddle permission issues."""
+    return """
+    Error: Account not eligible to trade short straddles.
+    
+    This error occurs because short straddles require Level 4 options trading permission.
+    A short straddle involves:
+    - Selling a call option
+    - Selling a put option
+    - Both options have the same strike price and expiration
+    
+    Required Account Level:
+    - Level 4 options trading permission is required
+    - Please contact your broker to upgrade your account level if needed
+    
+    Alternative Strategies:
+    - Consider using a long straddle instead
+    - Use a debit spread strategy
+    - Implement a covered call or cash-secured put
+    """
+
+def _get_short_strangle_error_message() -> str:
+    """Get error message for short strangle permission issues."""
+    return """
+    Error: Account not eligible to trade short strangles.
+    
+    This error occurs because short strangles require Level 4 options trading permission.
+    A short strangle involves:
+    - Selling an out-of-the-money call option
+    - Selling an out-of-the-money put option
+    - Both options have the same expiration
+    
+    Required Account Level:
+    - Level 4 options trading permission is required
+    - Please contact your broker to upgrade your account level if needed
+    
+    Alternative Strategies:
+    - Consider using a long strangle instead
+    - Use a debit spread strategy
+    - Implement a covered call or cash-secured put
+    """
+
+def _get_short_calendar_error_message() -> str:
+    """Get error message for short calendar spread permission issues."""
+    return """
+    Error: Account not eligible to trade short calendar spreads.
+    
+    This error occurs because short calendar spreads require Level 4 options trading permission.
+    A short calendar spread involves:
+    - Selling a longer-term option
+    - Selling a shorter-term option
+    - Both options have the same strike price
+    
+    Required Account Level:
+    - Level 4 options trading permission is required
+    - Please contact your broker to upgrade your account level if needed
+    
+    Alternative Strategies:
+    - Consider using a long calendar spread instead
+    - Use a debit spread strategy
+    - Implement a covered call or cash-secured put
+    """
+
+def _get_uncovered_options_error_message() -> str:
+    """Get error message for uncovered options permission issues."""
+    return """
+    Error: Account not eligible to trade uncovered option contracts.
+    
+    This error occurs when attempting to place an order that could result in an uncovered position.
+    Common scenarios include:
+    1. Selling naked calls
+    2. Calendar spreads where the short leg expires after the long leg
+    3. Other strategies that could leave uncovered positions
+    
+    Required Account Level:
+    - Level 4 options trading permission is required for uncovered options
+    - Please contact your broker to upgrade your account level if needed
+    
+    Alternative Strategies:
+    - Consider using covered calls instead of naked calls
+    - Use debit spreads instead of calendar spreads
+    - Ensure all positions are properly hedged
+    """
+
+def _handle_option_api_error(error_message: str, order_legs: List[OptionLegRequest], order_class: OrderClass) -> str:
+    """Handle API errors with specific option strategy analysis."""
+    if "40310000" in error_message and "not eligible to trade uncovered option contracts" in error_message:
+        is_short_straddle, is_short_strangle, is_short_calendar = _analyze_option_strategy_type(order_legs, order_class)
+        
+        if is_short_straddle:
+            return _get_short_straddle_error_message()
+        elif is_short_strangle:
+            return _get_short_strangle_error_message()
+        elif is_short_calendar:
+            return _get_short_calendar_error_message()
+        else:
+            return _get_uncovered_options_error_message()
+    elif "403" in error_message:
+        return f"""
+        Error: Permission denied for option trading.
+        
+        Possible reasons:
+        1. Insufficient account level for the requested strategy
+        2. Account restrictions on option trading
+        3. Missing required permissions
+        
+        Please check:
+        1. Your account's option trading level
+        2. Any specific restrictions on your account
+        3. Required permissions for the strategy you're trying to implement
+        
+        Original error: {error_message}
+        """
+    else:
+        return f"""
+        Error placing option order: {error_message}
+        
+        Please check:
+        1. All option symbols are valid
+        2. Your account has sufficient buying power
+        3. The market is open for trading
+        4. Your account has the required permissions
+        """
+
+
