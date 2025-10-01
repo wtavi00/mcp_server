@@ -1666,3 +1666,116 @@ async def get_option_latest_quote(
     except Exception as e:
         return f"Error fetching option quote: {str(e)}"
 
+@mcp.tool()
+async def get_option_snapshot(symbol_or_symbols: Union[str, List[str]], feed: Optional[OptionsFeed] = None) -> str:
+    """
+    Retrieves comprehensive snapshots of option contracts including latest trade, quote, implied volatility, and Greeks.
+    This endpoint provides a complete view of an option's current market state and theoretical values.
+    
+    Args:
+        symbol_or_symbols (Union[str, List[str]]): Single option symbol or list of option symbols
+            (e.g., 'AAPL250613P00205000')
+        feed (Optional[OptionsFeed]): The source feed of the data (opra or indicative).
+            Default: opra if the user has the options subscription, indicative otherwise.
+    
+    Returns:
+        str: Formatted string containing a comprehensive snapshot including:
+            - Symbol Information
+            - Latest Quote:
+                * Bid/Ask Prices and Sizes
+                * Exchange Information
+                * Trade Conditions
+                * Tape Information
+                * Timestamp (UTC)
+            - Latest Trade:
+                * Price and Size
+                * Exchange and Conditions
+                * Trade ID
+                * Timestamp (UTC)
+            - Implied Volatility (as percentage)
+            - Greeks:
+                * Delta (directional risk)
+                * Gamma (delta sensitivity)
+                * Rho (interest rate sensitivity)
+                * Theta (time decay)
+                * Vega (volatility sensitivity)
+    """
+    try:
+        # Create snapshot request
+        request = OptionSnapshotRequest(
+            symbol_or_symbols=symbol_or_symbols,
+            feed=feed
+        )
+        
+        # Get snapshots
+        snapshots = option_historical_data_client.get_option_snapshot(request)
+        
+        # Format the response
+        result = "Option Snapshots:\n"
+        result += "================\n\n"
+        
+        # Handle both single symbol and list of symbols
+        symbols = [symbol_or_symbols] if isinstance(symbol_or_symbols, str) else symbol_or_symbols
+        
+        for symbol in symbols:
+            snapshot = snapshots.get(symbol)
+            if snapshot is None:
+                result += f"No data available for {symbol}\n"
+                continue
+                
+            result += f"Symbol: {symbol}\n"
+            result += "-----------------\n"
+            
+            # Latest Quote
+            if snapshot.latest_quote:
+                quote = snapshot.latest_quote
+                result += f"Latest Quote:\n"
+                result += f"  Bid Price: ${quote.bid_price:.6f}\n"
+                result += f"  Bid Size: {quote.bid_size}\n"
+                result += f"  Bid Exchange: {quote.bid_exchange}\n"
+                result += f"  Ask Price: ${quote.ask_price:.6f}\n"
+                result += f"  Ask Size: {quote.ask_size}\n"
+                result += f"  Ask Exchange: {quote.ask_exchange}\n"
+                if quote.conditions:
+                    result += f"  Conditions: {quote.conditions}\n"
+                if quote.tape:
+                    result += f"  Tape: {quote.tape}\n"
+                result += f"  Timestamp: {quote.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %Z')}\n"
+            
+            # Latest Trade
+            if snapshot.latest_trade:
+                trade = snapshot.latest_trade
+                result += f"Latest Trade:\n"
+                result += f"  Price: ${trade.price:.6f}\n"
+                result += f"  Size: {trade.size}\n"
+                if trade.exchange:
+                    result += f"  Exchange: {trade.exchange}\n"
+                if trade.conditions:
+                    result += f"  Conditions: {trade.conditions}\n"
+                if trade.tape:
+                    result += f"  Tape: {trade.tape}\n"
+                if trade.id:
+                    result += f"  Trade ID: {trade.id}\n"
+                result += f"  Timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %Z')}\n"
+            
+            # Implied Volatility
+            if snapshot.implied_volatility is not None:
+                result += f"Implied Volatility: {snapshot.implied_volatility:.2%}\n"
+            
+            # Greeks
+            if snapshot.greeks:
+                greeks = snapshot.greeks
+                result += f"Greeks:\n"
+                result += f"  Delta: {greeks.delta:.4f}\n"
+                result += f"  Gamma: {greeks.gamma:.4f}\n"
+                result += f"  Rho: {greeks.rho:.4f}\n"
+                result += f"  Theta: {greeks.theta:.4f}\n"
+                result += f"  Vega: {greeks.vega:.4f}\n"
+            
+            result += "\n"
+        
+        return result
+        
+    except Exception as e:
+        return f"Error retrieving option snapshots: {str(e)}"
+
