@@ -2118,7 +2118,6 @@ async def place_option_market_order(
         - Level 4: Uncovered options (naked calls/puts), Short Strangles, Short Straddles, Short Call Calendar Spread, etc.
         If you receive a permission error, please check your account's option trading level.
     """
-    # Initialize variables that might be used in exception handlers
     order_legs: List[OptionLegRequest] = []
 
         # Validate inputs
@@ -2126,32 +2125,26 @@ async def place_option_market_order(
         if validation_error:
             return validation_error
         
-        # Convert order class string to enum if needed
         converted_order_class = _convert_order_class_string(order_class)
         if isinstance(converted_order_class, OrderClass):
             order_class = converted_order_class
         elif isinstance(converted_order_class, str):  # Error message returned
             return converted_order_class
-        
-        # Determine order class if not provided
+
         if order_class is None:
             order_class = OrderClass.MLEG if len(legs) > 1 else OrderClass.SIMPLE
         
-        # Process legs
         processed_legs = _process_option_legs(legs)
         if isinstance(processed_legs, str):  # Error message returned
             return processed_legs
         order_legs = processed_legs
         
-        # Create order request
         order_data = _create_option_market_order_request(
             order_legs, order_class, quantity, time_in_force, extended_hours
         )
-        
-        # Submit order
+
         order = trade_client.submit_order(order_data)
-        
-        # Format and return response
+
         return _format_option_order_response(order, order_class, order_legs)
         
     except APIError as api_error:
@@ -2185,8 +2178,7 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
     
     try:
         timeframe_str = timeframe_str.strip()
-        
-        # Use predefined TimeFrame objects for common cases (more efficient)
+
         predefined_timeframes = {
             "1Min": TimeFrame.Minute,
             "1Hour": TimeFrame.Hour, 
@@ -2197,9 +2189,7 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
         
         if timeframe_str in predefined_timeframes:
             return predefined_timeframes[timeframe_str]
-        
-        # Flexible regex pattern to parse any valid timeframe format
-        # Matches: <number><unit> where unit can be Min, Hour, Day, Week, Month
+
         pattern = r'^(\d+)(Min|Hour|Day|Week|Month)$'
         match = re.match(pattern, timeframe_str, re.IGNORECASE)
         
@@ -2209,7 +2199,6 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
         amount = int(match.group(1))
         unit_str = match.group(2).lower()
         
-        # Map unit strings to TimeFrameUnit enums
         unit_mapping = {
             'min': TimeFrameUnit.Minute,
             'hour': TimeFrameUnit.Hour,
@@ -2221,16 +2210,11 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
         unit = unit_mapping.get(unit_str)
         if unit is None:
             return None
-            
-        # Validate amount based on unit type
         if unit == TimeFrameUnit.Minute and amount > 59:
-            # Minutes should be reasonable (1-59)
             return None
         elif unit == TimeFrameUnit.Hour and amount > 23:
-            # Hours should be reasonable (1-23) 
             return None
         elif unit in [TimeFrameUnit.Day, TimeFrameUnit.Week, TimeFrameUnit.Month] and amount > 365:
-            # Days/weeks/months should be reasonable
             return None
             
         return TimeFrame(amount, unit)
@@ -2238,14 +2222,10 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
     except (ValueError, AttributeError, TypeError):
 
 if __name__ == "__main__":
-    # Parse command line arguments when running as main script
     args = parse_arguments()
-    
-    # Setup transport configuration based on command line arguments
     transport_config = setup_transport_config(args)
     
     try:
-        # Run server with the specified transport
         if args.transport == "http":
             mcp.settings.host = transport_config["host"]
             mcp.settings.port = transport_config["port"]
