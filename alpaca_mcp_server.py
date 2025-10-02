@@ -2168,4 +2168,73 @@ async def place_option_market_order(
         4. Contacting support if the issue persists
         """
 
+def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
+    """
+    Parse timeframe string to Alpaca TimeFrame object using proper enumerations.
+    Supports flexible parsing of any valid timeframe format.
+    
+    Args:
+        timeframe_str (str): Timeframe string (e.g., "1Min", "4Min", "2Hour", "1Day")
+        
+    Returns:
+        Optional[TimeFrame]: Parsed TimeFrame object using TimeFrameUnit enums or None if invalid
+        
+    Reference:
+        https://alpaca.markets/sdks/python/api_reference/data/timeframe.html#timeframeunit
+    """
+    
+    try:
+        timeframe_str = timeframe_str.strip()
+        
+        # Use predefined TimeFrame objects for common cases (more efficient)
+        predefined_timeframes = {
+            "1Min": TimeFrame.Minute,
+            "1Hour": TimeFrame.Hour, 
+            "1Day": TimeFrame.Day,
+            "1Week": TimeFrame.Week,
+            "1Month": TimeFrame.Month
+        }
+        
+        if timeframe_str in predefined_timeframes:
+            return predefined_timeframes[timeframe_str]
+        
+        # Flexible regex pattern to parse any valid timeframe format
+        # Matches: <number><unit> where unit can be Min, Hour, Day, Week, Month
+        pattern = r'^(\d+)(Min|Hour|Day|Week|Month)$'
+        match = re.match(pattern, timeframe_str, re.IGNORECASE)
+        
+        if not match:
+            return None
+            
+        amount = int(match.group(1))
+        unit_str = match.group(2).lower()
+        
+        # Map unit strings to TimeFrameUnit enums
+        unit_mapping = {
+            'min': TimeFrameUnit.Minute,
+            'hour': TimeFrameUnit.Hour,
+            'day': TimeFrameUnit.Day,
+            'week': TimeFrameUnit.Week,
+            'month': TimeFrameUnit.Month
+        }
+        
+        unit = unit_mapping.get(unit_str)
+        if unit is None:
+            return None
+            
+        # Validate amount based on unit type
+        if unit == TimeFrameUnit.Minute and amount > 59:
+            # Minutes should be reasonable (1-59)
+            return None
+        elif unit == TimeFrameUnit.Hour and amount > 23:
+            # Hours should be reasonable (1-23) 
+            return None
+        elif unit in [TimeFrameUnit.Day, TimeFrameUnit.Week, TimeFrameUnit.Month] and amount > 365:
+            # Days/weeks/months should be reasonable
+            return None
+            
+        return TimeFrame(amount, unit)
+        
+    except (ValueError, AttributeError, TypeError):
 
+        
