@@ -2237,4 +2237,22 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
         
     except (ValueError, AttributeError, TypeError):
 
-        
+if __name__ == "__main__":
+    # Parse command line arguments when running as main script
+    args = parse_arguments()
+    
+    # Setup transport configuration based on command line arguments
+    transport_config = setup_transport_config(args)
+    
+    try:
+        # Run server with the specified transport
+        if args.transport == "http":
+            mcp.settings.host = transport_config["host"]
+            mcp.settings.port = transport_config["port"]
+            mcp.run(transport="streamable-http")
+        elif args.transport == "sse":
+            mcp.settings.host = transport_config["host"]
+            mcp.settings.port = transport_config["port"]
+            mcp.run(transport="sse")
+        else:
+            mcp.run(transport="stdio")        
