@@ -2236,3 +2236,15 @@ if __name__ == "__main__":
             mcp.run(transport="sse")
         else:
             mcp.run(transport="stdio")        
+    except Exception as e:
+        if args.transport in ["http", "sse"]:
+            print(f"Error starting {args.transport} server: {e}")
+            print(f"Server was configured to run on {transport_config['host']}:{transport_config['port']}")
+            print("Common solutions:")
+            print(f"1. Ensure port {transport_config['port']} is available")
+            print(f"2. Check if another service is using port {transport_config['port']}")
+            print("3. Try using a different port with --port <PORT>")
+            print("4. For remote access, consider using SSH tunneling or reverse proxy")
+        else:
+            print(f"Error starting MCP server: {e}")
+        sys.exit(1)
