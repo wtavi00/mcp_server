@@ -58,7 +58,6 @@ from alpaca.trading.requests import (
 )
 
 from mcp.server.fastmcp import FastMCP
-
 # Configure Python path for local imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
 github_core_path = os.path.join(current_dir, '.github', 'core')
@@ -122,20 +121,25 @@ def setup_transport_config(args):
             "transport": "stdio"
         }
 
+# Default args for when module is imported (not run directly)
 class DefaultArgs:
     def __init__(self):
         self.transport = "stdio"
+        # host and port are only set when needed (via argument parsing)
 
 args = DefaultArgs()
 
+# Initialize FastMCP server with intelligent log level detection
 is_pycharm = detect_pycharm_environment()
 log_level = "ERROR" if is_pycharm else "INFO"
+
 if not is_pycharm and __name__ == "__main__":
     print(f"MCP Server starting with transport={args.transport}, log_level={log_level} (PyCharm detected: {is_pycharm})")
 
 mcp = FastMCP("alpaca-trading", log_level=log_level)
 
 load_dotenv()
+
 TRADE_API_KEY = os.getenv("ALPACA_API_KEY")
 TRADE_API_SECRET = os.getenv("ALPACA_SECRET_KEY")
 ALPACA_PAPER_TRADE = os.getenv("ALPACA_PAPER_TRADE", "True")
@@ -146,16 +150,19 @@ STREAM_DATA_WSS = os.getenv("STREAM_DATA_WSS")
 
 if not TRADE_API_KEY or not TRADE_API_SECRET:
     raise ValueError("Alpaca API credentials not found in environment variables.")
-    
+
+# Initialize clients
+# For trading
 trade_client = TradingClientSigned(TRADE_API_KEY, TRADE_API_SECRET, paper=ALPACA_PAPER_TRADE)
-
+# For historical market data
 stock_historical_data_client = StockHistoricalDataClientSigned(TRADE_API_KEY, TRADE_API_SECRET)
-
+# For streaming market data
 stock_data_stream_client = StockDataStream(TRADE_API_KEY, TRADE_API_SECRET, url_override=STREAM_DATA_WSS)
-
+# For option historical data
 option_historical_data_client = OptionHistoricalDataClientSigned(api_key=TRADE_API_KEY, secret_key=TRADE_API_SECRET)
-
+# For corporate actions data
 corporate_actions_client = CorporateActionsClientSigned(api_key=TRADE_API_KEY, secret_key=TRADE_API_SECRET)
+
 
 # ============================================================================
 # Account Information Tools
@@ -213,6 +220,7 @@ async def get_positions() -> str:
             - Unrealized P/L
     """
     positions = trade_client.get_all_positions()
+    
 
     if not positions:
         return "No open positions found."
@@ -230,6 +238,7 @@ async def get_positions() -> str:
                     """
     return result
 
+
 @mcp.tool()
 async def get_open_position(symbol: str) -> str:
     """
@@ -243,7 +252,8 @@ async def get_open_position(symbol: str) -> str:
     """
     try:
         position = trade_client.get_open_position(symbol)
-
+        
+        # Check if it's an options position by looking for the options symbol pattern
         is_option = len(symbol) > 6 and any(c in symbol for c in ['C', 'P'])
         
         # Format quantity based on asset type
@@ -260,6 +270,7 @@ async def get_open_position(symbol: str) -> str:
                 """ 
     except Exception as e:
         return f"Error fetching position: {str(e)}"
+
 
 # ============================================================================
 # Market Data Tools
@@ -281,7 +292,7 @@ async def get_stock_quote(symbol: str) -> str:
             - Bid Size
             - Timestamp
     """
-    
+
     try:
         request_params = StockLatestQuoteRequest(symbol_or_symbols=symbol)
         quotes = stock_historical_data_client.get_stock_latest_quote(request_params)
@@ -300,7 +311,8 @@ async def get_stock_quote(symbol: str) -> str:
         else:
             return f"No quote data found for {symbol}."
     except Exception as e:
-        return f"Error fetching quote for {symbol}: {str(e)}" 
+        return f"Error fetching quote for {symbol}: {str(e)}"
+
 
 @mcp.tool()
 async def get_stock_bars(
@@ -352,7 +364,8 @@ async def get_stock_bars(
                 end_time = datetime.fromisoformat(end.replace('Z', '+00:00'))
             except ValueError:
                 return f"Error: Invalid end time format '{end}'. Use ISO format like '2023-01-01T16:00:00' or '2023-01-01'"
-
+        
+        # If no start/end provided, calculate from days parameter OR limit+timeframe
         if not start_time:
             if limit and timeframe_obj.unit_value in [TimeFrameUnit.Minute, TimeFrameUnit.Hour]:
                 # Calculate based on limit and timeframe for intraday data
@@ -377,7 +390,8 @@ async def get_stock_bars(
         )
         
         bars = stock_historical_data_client.get_stock_bars(request_params)
-
+        
+        
         if bars[symbol]:
             time_range = f"{start_time.strftime('%Y-%m-%d %H:%M')} to {end_time.strftime('%Y-%m-%d %H:%M')}"
             result = f"Historical Data for {symbol} ({timeframe} bars, {time_range}):\n"
@@ -397,6 +411,7 @@ async def get_stock_bars(
             return f"No historical data found for {symbol} with {timeframe} timeframe in the specified time range."
     except Exception as e:
         return f"Error fetching historical data for {symbol}: {str(e)}"
+
 
 @mcp.tool()
 async def get_stock_trades(
@@ -438,7 +453,8 @@ async def get_stock_trades(
             currency=currency,
             asof=asof
         )
-                
+        
+        # Get the trades
         trades = stock_historical_data_client.get_stock_trades(request_params)
         
         if symbol in trades:
@@ -485,6 +501,7 @@ async def get_stock_latest_trade(
             currency=currency
         )
         
+        # Get the latest trade
         latest_trades = stock_historical_data_client.get_stock_latest_trade(request_params)
         
         if symbol in latest_trades:
@@ -503,7 +520,8 @@ async def get_stock_latest_trade(
             return f"No latest trade data found for {symbol}."
     except Exception as e:
         return f"Error fetching latest trade: {str(e)}"
-        
+
+
 @mcp.tool()
 async def get_stock_latest_bar(
     symbol: str,
@@ -528,6 +546,7 @@ async def get_stock_latest_bar(
             currency=currency
         )
         
+        # Get the latest bar
         latest_bars = stock_historical_data_client.get_stock_latest_bar(request_params)
         
         if symbol in latest_bars:
@@ -562,7 +581,8 @@ def _format_ohlcv_bar(bar, bar_type: str, include_time: bool = True) -> str:
     return f"""{bar_type}:
   Open: ${bar.open:.2f}, High: ${bar.high:.2f}, Low: ${bar.low:.2f}, Close: ${bar.close:.2f}
   Volume: {bar.volume:,}, {time_label}: {bar.timestamp.strftime(time_format)}
-  """
+
+"""
 
 def _format_quote_data(quote) -> str:
     """Helper function to format quote data consistently."""
@@ -574,7 +594,6 @@ def _format_quote_data(quote) -> str:
   Timestamp: {quote.timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')}
 
 """
-
 
 def _format_trade_data(trade) -> str:
     """Helper function to format trade data consistently."""
@@ -620,9 +639,11 @@ async def get_stock_snapshot(
         - previous_daily_bar: Previous trading day's OHLCV bar
     """
     try:
+        # Create and execute request
         request = StockSnapshotRequest(symbol_or_symbols=symbol_or_symbols, feed=feed, currency=currency)
         snapshots = stock_historical_data_client.get_stock_snapshot(request)
-
+        
+        # Format response
         symbols = [symbol_or_symbols] if isinstance(symbol_or_symbols, str) else symbol_or_symbols
         results = ["Stock Snapshots:", "=" * 15, ""]
         
@@ -631,7 +652,8 @@ async def get_stock_snapshot(
             if not snapshot:
                 results.append(f"No data available for {symbol}\n")
                 continue
-
+            
+            # Build snapshot data using helper functions
             snapshot_data = [
                 f"Symbol: {symbol}",
                 "-" * 15,
@@ -669,7 +691,7 @@ async def get_stock_snapshot(
             return f"API Error retrieving stock snapshots: {error_message}"
             
     except Exception as e:
-        return f"Error retrieving stock snapshots: {str(e)}"    
+        return f"Error retrieving stock snapshots: {str(e)}"
 
 
 # ============================================================================
@@ -697,6 +719,7 @@ async def get_orders(status: str = "all", limit: int = 10) -> str:
             - Fill Details (if applicable)
     """
     try:
+        # Convert status string to enum
         if status.lower() == "open":
             query_status = QueryOrderStatus.OPEN
         elif status.lower() == "closed":
@@ -753,6 +776,7 @@ async def place_stock_order(
     extended_hours: bool = False,
     client_order_id: str = None
 ) -> str:
+
     """
     Places an order of any supported type (MARKET, LIMIT, STOP, STOP_LIMIT, TRAILING_STOP) using the correct Alpaca request class.
 
@@ -774,17 +798,20 @@ async def place_stock_order(
         str: Formatted string containing order details or error message.
     """
     try:
+        # Validate side
         if side.lower() == "buy":
             order_side = OrderSide.BUY
         elif side.lower() == "sell":
             order_side = OrderSide.SELL
         else:
             return f"Invalid order side: {side}. Must be 'buy' or 'sell'."
-            
+
+        # Validate and convert time_in_force to enum
         tif_enum = None
         if isinstance(time_in_force, TimeInForce):
             tif_enum = time_in_force
         elif isinstance(time_in_force, str):
+            # Convert string to TimeInForce enum
             time_in_force_upper = time_in_force.upper()
             if time_in_force_upper == "DAY":
                 tif_enum = TimeInForce.DAY
@@ -803,6 +830,7 @@ async def place_stock_order(
         else:
             return f"Invalid time_in_force type: {type(time_in_force)}. Must be string or TimeInForce enum."
 
+        # Validate order_type
         order_type_upper = order_type.upper()
         if order_type_upper == "MARKET":
             order_data = MarketOrderRequest(
@@ -840,7 +868,6 @@ async def place_stock_order(
                 extended_hours=extended_hours,
                 client_order_id=client_order_id or f"order_{int(time.time())}"
             )
-
         elif order_type_upper == "STOP_LIMIT":
             if stop_price is None or limit_price is None:
                 return "Both stop_price and limit_price are required for STOP_LIMIT orders."
@@ -872,6 +899,7 @@ async def place_stock_order(
         else:
             return f"Invalid order type: {order_type}. Must be one of: MARKET, LIMIT, STOP, STOP_LIMIT, TRAILING_STOP."
 
+        # Submit order
         order = trade_client.submit_order(order_data)
         return f"""
                 Order Placed Successfully:
@@ -897,7 +925,7 @@ async def cancel_all_orders() -> str:
         A formatted string containing the status of each cancelled order.
     """
     try:
-
+        # Cancel all orders
         cancel_responses = trade_client.cancel_orders()
         
         if not cancel_responses:
@@ -932,8 +960,10 @@ async def cancel_order_by_id(order_id: str) -> str:
         A formatted string containing the status of the cancelled order.
     """
     try:
+        # Cancel the specific order
         response = trade_client.cancel_order_by_id(order_id)
-
+        
+        # Format the response
         status = "Success" if response.status == 200 else "Failed"
         result = f"""
         Order Cancellation Result:
@@ -968,13 +998,15 @@ async def close_position(symbol: str, qty: Optional[str] = None, percentage: Opt
         str: Formatted string containing position closure details or error message
     """
     try:
+        # Create close position request if options are provided
         close_options = None
         if qty or percentage:
             close_options = ClosePositionRequest(
                 qty=qty,
                 percentage=percentage
             )
-
+        
+        # Close the position
         order = trade_client.close_position(symbol, close_options)
         
         return f"""
@@ -984,7 +1016,7 @@ async def close_position(symbol: str, qty: Optional[str] = None, percentage: Opt
                 Order ID: {order.id}
                 Status: {order.status}
                 """
-        
+                
     except APIError as api_error:
         error_message = str(api_error)
         if "42210000" in error_message and "would result in order size of zero" in error_message:
@@ -1001,80 +1033,7 @@ async def close_position(symbol: str, qty: Optional[str] = None, percentage: Opt
             return f"Error closing position: {error_message}"
             
     except Exception as e:
-        return f"Error closing position: {str(e)}"                
-
-@mcp.tool()
-async def close_all_positions(cancel_orders: bool = False) -> str:
-    """
-    Closes all open positions.
-    
-    Args:
-        cancel_orders (bool): If True, cancels all open orders before liquidating positions
-    
-    Returns:
-        str: Formatted string containing position closure results
-    """
-    try:
-        # Close all positions
-        close_responses = trade_client.close_all_positions(cancel_orders=cancel_orders)
-        
-        if not close_responses:
-            return "No positions were found to close."
-        
-        # Format the response
-        response_parts = ["Position Closure Results:"]
-        response_parts.append("-" * 30)
-        
-        for response in close_responses:
-            response_parts.append(f"Symbol: {response.symbol}")
-            response_parts.append(f"Status: {response.status}")
-            if response.order_id:
-                response_parts.append(f"Order ID: {response.order_id}")
-            response_parts.append("-" * 30)
-        
-        return "\n".join(response_parts)
-        
-    except Exception as e:
-        return f"Error closing positions: {str(e)}"
-
-# ============================================================================
-# Asset Information Tools
-# ============================================================================
-
-@mcp.tool()
-async def get_asset_info(symbol: str) -> str:
-    """
-    Retrieves and formats detailed information about a specific asset.
-    
-    Args:
-        symbol (str): The symbol of the asset to get information for
-    
-    Returns:
-        str: Formatted string containing asset details including:
-            - Name
-            - Exchange
-            - Class
-            - Status
-            - Trading Properties
-    """
-    try:
-        asset = trade_client.get_asset(symbol)
-        return f"""
-                Asset Information for {symbol}:
-                ----------------------------
-                Name: {asset.name}
-                Exchange: {asset.exchange}
-                Class: {asset.asset_class}
-                Status: {asset.status}
-                Tradable: {'Yes' if asset.tradable else 'No'}
-                Marginable: {'Yes' if asset.marginable else 'No'}
-                Shortable: {'Yes' if asset.shortable else 'No'}
-                Easy to Borrow: {'Yes' if asset.easy_to_borrow else 'No'}
-                Fractionable: {'Yes' if asset.fractionable else 'No'}
-                """
-    except Exception as e:
-        return f"Error fetching asset information: {str(e)}"
-
+        return f"Error closing position: {str(e)}"
 
 @mcp.tool()
 async def close_all_positions(cancel_orders: bool = False) -> str:
@@ -1248,7 +1207,6 @@ async def update_watchlist(watchlist_id: str, name: str = None, symbols: List[st
         return f"Watchlist updated successfully: {watchlist.name}"
     except Exception as e:
         return f"Error updating watchlist: {str(e)}"
-
 
 # ============================================================================
 # Market Information Tools
@@ -1608,6 +1566,7 @@ async def get_option_contracts(
         
     except Exception as e:
         return f"Error fetching option contracts: {str(e)}"
+
 @mcp.tool()
 async def get_option_latest_quote(
     symbol: str,
@@ -2061,6 +2020,9 @@ def _handle_option_api_error(error_message: str, order_legs: List[OptionLegReque
         4. Your account has the required permissions
         """
 
+null:
+
+
 # ============================================================================
 # Options Trading Tool
 # ============================================================================
@@ -2118,22 +2080,27 @@ async def place_option_market_order(
         - Level 4: Uncovered options (naked calls/puts), Short Strangles, Short Straddles, Short Call Calendar Spread, etc.
         If you receive a permission error, please check your account's option trading level.
     """
+    # Initialize variables that might be used in exception handlers
     order_legs: List[OptionLegRequest] = []
-
+    
+    try:
         # Validate inputs
         validation_error = _validate_option_order_inputs(legs, quantity, time_in_force)
         if validation_error:
             return validation_error
         
+        # Convert order class string to enum if needed
         converted_order_class = _convert_order_class_string(order_class)
         if isinstance(converted_order_class, OrderClass):
             order_class = converted_order_class
         elif isinstance(converted_order_class, str):  # Error message returned
             return converted_order_class
-
+        
+        # Determine order class if not provided
         if order_class is None:
             order_class = OrderClass.MLEG if len(legs) > 1 else OrderClass.SIMPLE
         
+        # Process legs
         processed_legs = _process_option_legs(legs)
         if isinstance(processed_legs, str):  # Error message returned
             return processed_legs
@@ -2142,9 +2109,9 @@ async def place_option_market_order(
         order_data = _create_option_market_order_request(
             order_legs, order_class, quantity, time_in_force, extended_hours
         )
-
+        
         order = trade_client.submit_order(order_data)
-
+        
         return _format_option_order_response(order, order_class, order_legs)
         
     except APIError as api_error:
@@ -2178,7 +2145,8 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
     
     try:
         timeframe_str = timeframe_str.strip()
-
+        
+        # Use predefined TimeFrame objects for common cases (more efficient)
         predefined_timeframes = {
             "1Min": TimeFrame.Minute,
             "1Hour": TimeFrame.Hour, 
@@ -2189,7 +2157,9 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
         
         if timeframe_str in predefined_timeframes:
             return predefined_timeframes[timeframe_str]
-
+        
+        # Flexible regex pattern to parse any valid timeframe format
+        # Matches: <number><unit> where unit can be Min, Hour, Day, Week, Month
         pattern = r'^(\d+)(Min|Hour|Day|Week|Month)$'
         match = re.match(pattern, timeframe_str, re.IGNORECASE)
         
@@ -2198,7 +2168,7 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
             
         amount = int(match.group(1))
         unit_str = match.group(2).lower()
-        
+
         unit_mapping = {
             'min': TimeFrameUnit.Minute,
             'hour': TimeFrameUnit.Hour,
@@ -2210,22 +2180,30 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
         unit = unit_mapping.get(unit_str)
         if unit is None:
             return None
+
         if unit == TimeFrameUnit.Minute and amount > 59:
+            # Minutes should be reasonable (1-59)
             return None
         elif unit == TimeFrameUnit.Hour and amount > 23:
+            # Hours should be reasonable (1-23) 
             return None
         elif unit in [TimeFrameUnit.Day, TimeFrameUnit.Week, TimeFrameUnit.Month] and amount > 365:
+            # Days/weeks/months should be reasonable
             return None
             
         return TimeFrame(amount, unit)
         
     except (ValueError, AttributeError, TypeError):
+        return None
 
+# Run the server
 if __name__ == "__main__":
     args = parse_arguments()
+    
     transport_config = setup_transport_config(args)
     
     try:
+        # Run server with the specified transport
         if args.transport == "http":
             mcp.settings.host = transport_config["host"]
             mcp.settings.port = transport_config["port"]
@@ -2235,7 +2213,7 @@ if __name__ == "__main__":
             mcp.settings.port = transport_config["port"]
             mcp.run(transport="sse")
         else:
-            mcp.run(transport="stdio")        
+            mcp.run(transport="stdio")
     except Exception as e:
         if args.transport in ["http", "sse"]:
             print(f"Error starting {args.transport} server: {e}")
@@ -2248,3 +2226,5 @@ if __name__ == "__main__":
         else:
             print(f"Error starting MCP server: {e}")
         sys.exit(1)
+
+"""
