@@ -2020,9 +2020,6 @@ def _handle_option_api_error(error_message: str, order_legs: List[OptionLegReque
         4. Your account has the required permissions
         """
 
-null:
-
-
 # ============================================================================
 # Options Trading Tool
 # ============================================================================
@@ -2226,5 +2223,3 @@ if __name__ == "__main__":
         else:
             print(f"Error starting MCP server: {e}")
         sys.exit(1)
-
-"""
