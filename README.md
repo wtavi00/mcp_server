@@ -590,3 +590,29 @@ Key Insights:
 - Deep In-the-Money (Delta: -0.90)
 - Significant Time Decay ($27/day)
 
+
+### Multi-Leg Option Order
+Query: "Place a bull call spread using AAPL June 6th options: one with a 190.00 strike and the other with a 200.00 strike."
+
+Response:
+Order Details:
+- Order ID: fc1c04b1-8afa-4b2d-aab1-49613bbed7cb
+- Order Class: Multi-Leg (MLEG)
+- Status: Pending New
+- Quantity: 1 spread
+
+Spread Legs:
+1. Long Leg (BUY):
+   - AAPL250606C00190000 ($190.00 strike)
+   - Status: Pending New
+
+2. Short Leg (SELL):
+   - AAPL250606C00200000 ($200.00 strike)
+   - Status: Pending New
+
+Strategy Summary:
+- Max Profit: $10.00 per spread
+- Max Loss: Net debit paid
+- Breakeven: $190 + net debit paid
+
+
