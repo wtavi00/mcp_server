@@ -616,3 +616,97 @@ Strategy Summary:
 - Breakeven: $190 + net debit paid
 
 
+
+These examples demonstrate the server's ability to provide:
+- Detailed market data analysis
+- Comprehensive order execution details
+- Clear strategy explanations
+- Well-formatted, easy-to-read responses
+
+The server maintains this level of detail and formatting across all supported queries, making it easy to understand and act on the information provided.
+
+## HTTP Transport for Remote Usage
+
+For users who need to run the MCP server on a remote machine (e.g., Ubuntu server) and connect from a different machine (e.g., Windows Claude Desktop), use HTTP transport:
+
+### Server Setup (Remote Machine)
+```bash
+# Start server with HTTP transport (default: 127.0.0.1:8000)
+python alpaca_mcp_server.py --transport http
+
+# Start server with custom host/port for remote access
+python alpaca_mcp_server.py --transport http --host 0.0.0.0 --port 9000
+
+# For systemd service (example from GitHub issue #6)
+# Update your start script to use HTTP transport
+#!/bin/bash
+cd /root/alpaca-mcp-server
+source venv/bin/activate
+exec python3 -u alpaca_mcp_server.py --transport http --host 0.0.0.0 --port 8000
+```
+
+**Remote Access Options:**
+1. **Direct binding**: Use `--host 0.0.0.0` to bind to all interfaces for direct remote access
+2. **SSH tunneling**: `ssh -L 8000:localhost:8000 user@your-server` for secure access (recommended for localhost binding)
+3. **Reverse proxy**: Use nginx/Apache to expose the service securely with authentication
+
+### Client Setup
+Update your Claude Desktop configuration to use HTTP:
+```json
+{
+  "mcpServers": {
+    "alpaca": {
+      "transport": "http",
+      "url": "http://your-server-ip:8000/mcp",
+      "env": {
+        "ALPACA_API_KEY": "your_alpaca_api_key",
+        "ALPACA_SECRET_KEY": "your_alpaca_secret_key"
+      }
+    }
+  }
+}
+```
+
+### Troubleshooting HTTP Transport Issues
+- **Port not listening**: Ensure the server started successfully and check firewall settings
+- **Connection refused**: Verify the server is running on the expected host:port
+- **ENOENT errors**: Make sure you're using the updated server command with `--transport http`
+- **Remote access**: Use `--host 0.0.0.0` for direct access, or SSH tunneling for localhost binding
+- **Port conflicts**: Use `--port <PORT>` to specify a different port if default is busy
+
+## Security Notice
+
+This server can place real trades and access your portfolio. Treat your API keys as sensitive credentials. Review all actions proposed by the LLM carefully, especially for complex options strategies or multi-leg trades.
+
+**HTTP Transport Security**: When using HTTP transport, the server defaults to localhost (127.0.0.1:8000) for security. For remote access, you can bind to all interfaces with `--host 0.0.0.0`, use SSH tunneling (`ssh -L 8000:localhost:8000 user@server`), or set up a reverse proxy with authentication for secure access.
+
+## Usage Analytics Notice
+
+The user agent for API calls defaults to 'ALPACA-MCP-SERVER' to help Alpaca identify MCP server usage and improve user experience. You can opt out by modifying the 'USER_AGENT' constant in '.github/core/user_agent_mixin.py' or by removing the 'UserAgentMixin' from the client class definitions in 'alpaca_mcp_server.py' — though we kindly hope you'll keep it enabled to support ongoing improvements.
+
+## License
+
+[LICENSE](https://github.com/wtavi00/mcp_server/blob/main/LICENSE)
+
+## Author
+[Avijit](https://github.com/wtavi00)
+
+## Disclosure
+- Please note that the content on this page is for informational purposes only. Alpaca does not recommend any specific securities or investment strategies.
+
+- Options trading is not suitable for all investors due to its inherent high risk, which can potentially result in significant losses. Please read Characteristics and Risks of Standardized Options ([Options Disclosure Document](https://www.theocc.com/company-information/documents-and-archives/options-disclosure-document?ref=alpaca.markets)) before investing in options.
+
+
+- Alpaca does not prepare, edit, endorse, or approve Third Party Content. Alpaca does not guarantee the accuracy, timeliness, completeness or usefulness of Third Party Content, and is not responsible or liable for any content, advertising, products, or other materials on or available from third party sites.
+
+- All investments involve risk, and the past performance of a security, or financial product does not guarantee future results or returns. There is no guarantee that any investment strategy will achieve its objectives. Please note that diversification does not ensure a profit, or protect against loss. There is always the potential of losing money when you invest in securities, or other financial products. Investors should consider their investment objectives and risks carefully before investing.
+
+- The algorithm's calculations are based on historical and real-time market data but may not account for all market factors, including sudden price moves, liquidity constraints, or execution delays. Model assumptions, such as volatility estimates and dividend treatments, can impact performance and accuracy. Trades generated by the algorithm are subject to brokerage execution processes, market liquidity, order priority, and timing delays. These factors may cause deviations from expected trade execution prices or times. Users are responsible for monitoring algorithmic activity and understanding the risks involved. Alpaca is not liable for any losses incurred through the use of this system.
+
+- Past hypothetical backtest results do not guarantee future returns, and actual results may vary from the analysis.
+
+- The Paper Trading API is offered by AlpacaDB, Inc. and does not require real money or permit a user to transact in real securities in the market. Providing use of the Paper Trading API is not an offer or solicitation to buy or sell securities, securities derivative or futures products of any kind, or any type of trading or investment advice, recommendation or strategy, given or in any manner endorsed by AlpacaDB, Inc. or any AlpacaDB, Inc. affiliate and the information made available through the Paper Trading API is not an offer or solicitation of any kind in any jurisdiction where AlpacaDB, Inc. or any AlpacaDB, Inc. affiliate (collectively, “Alpaca”) is not authorized to do business.
+
+- Securities brokerage services are provided by Alpaca Securities LLC ("Alpaca Securities"), member [FINRA](https://www.finra.org/)/[SIPC](https://www.sipc.org/), a wholly-owned subsidiary of AlpacaDB, Inc. Technology and services are offered by AlpacaDB, Inc.
+
+- This is not an offer, solicitation of an offer, or advice to buy or sell securities or open a brokerage account in any jurisdiction where Alpaca Securities is not registered or licensed, as applicable.
