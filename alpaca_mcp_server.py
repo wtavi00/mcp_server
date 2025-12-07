@@ -2142,8 +2142,6 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
     
     try:
         timeframe_str = timeframe_str.strip()
-        
-        # Use predefined TimeFrame objects for common cases (more efficient)
         predefined_timeframes = {
             "1Min": TimeFrame.Minute,
             "1Hour": TimeFrame.Hour, 
@@ -2179,13 +2177,10 @@ def parse_timeframe_with_enums(timeframe_str: str) -> Optional[TimeFrame]:
             return None
 
         if unit == TimeFrameUnit.Minute and amount > 59:
-            # Minutes should be reasonable (1-59)
             return None
         elif unit == TimeFrameUnit.Hour and amount > 23:
-            # Hours should be reasonable (1-23) 
             return None
         elif unit in [TimeFrameUnit.Day, TimeFrameUnit.Week, TimeFrameUnit.Month] and amount > 365:
-            # Days/weeks/months should be reasonable
             return None
             
         return TimeFrame(amount, unit)
@@ -2200,7 +2195,6 @@ if __name__ == "__main__":
     transport_config = setup_transport_config(args)
     
     try:
-        # Run server with the specified transport
         if args.transport == "http":
             mcp.settings.host = transport_config["host"]
             mcp.settings.port = transport_config["port"]
