@@ -689,7 +689,7 @@ The user agent for API calls defaults to 'ALPACA-MCP-SERVER' to help Alpaca iden
 [LICENSE](https://github.com/wtavi00/mcp_server/blob/main/LICENSE)
 
 ## Author
-[Avijit](https://github.com/wtavi00)
+[AVIJIT](https://github.com/wtavi00)
 
 ## Disclosure
 - Please note that the content on this page is for informational purposes only. Alpaca does not recommend any specific securities or investment strategies.
